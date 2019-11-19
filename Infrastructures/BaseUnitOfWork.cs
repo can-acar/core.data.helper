@@ -12,18 +12,21 @@ namespace core.data.helper.infrastructures
     public abstract class BaseUnitOfWork<TContext> : IUnitOfWork where TContext : class, IDisposable
     {
         private readonly IContextAdaptor<TContext> ContextAdaptor;
-        private          TContext                  Context;
-        private          bool                      Disposed;
+        private TContext Context;
+        private bool Disposed;
 
         /// <summary>
         /// </summary>
         /// <param name="contextAdaptor"></param>
-        protected BaseUnitOfWork(IContextAdaptor<TContext> contextAdaptor) { ContextAdaptor = contextAdaptor; }
+        protected BaseUnitOfWork(IContextAdaptor<TContext> contextAdaptor)
+        {
+            ContextAdaptor = contextAdaptor;
+        }
 
         protected bool LazyLoadingEnabled
         {
-            set => DbContext().ChangeTracker.LazyLoadingEnabled = value;
-            get => DbContext().ChangeTracker.LazyLoadingEnabled;
+            set => (Context as DbContext).ChangeTracker.LazyLoadingEnabled = value; //DbContext().ChangeTracker.LazyLoadingEnabled = value;
+            get => (Context as DbContext).ChangeTracker.LazyLoadingEnabled;
         }
 
         protected TContext DataContext
@@ -39,7 +42,10 @@ namespace core.data.helper.infrastructures
             }
         }
 #pragma warning disable CS8603 
-        public DbContext DbContext() { return Context as DbContext; }
+        public DbContext DbContext()
+        {
+            return Context as DbContext;
+        }
 
         /// <summary>
         /// </summary>
@@ -48,7 +54,7 @@ namespace core.data.helper.infrastructures
         public abstract IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel);
 
         public abstract IRepository<TEntity> Repository<TEntity>() where TEntity : class;
-        
+
 
         public abstract void Commit();
 
