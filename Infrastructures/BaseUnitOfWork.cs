@@ -1,11 +1,13 @@
 using System;
 using System.Data;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace core.data.helper.infrastructures
 {
+
     /// <summary>
     /// </summary>
     /// <typeparam name="TContext"></typeparam>
@@ -18,10 +20,7 @@ namespace core.data.helper.infrastructures
         /// <summary>
         /// </summary>
         /// <param name="contextAdaptor"></param>
-        protected BaseUnitOfWork(IContextAdaptor<TContext> contextAdaptor)
-        {
-            ContextAdaptor = contextAdaptor;
-        }
+        protected BaseUnitOfWork(IContextAdaptor<TContext> contextAdaptor) { ContextAdaptor = contextAdaptor; }
 
         protected bool LazyLoadingEnabled
         {
@@ -41,11 +40,8 @@ namespace core.data.helper.infrastructures
                 return Context;
             }
         }
-#pragma warning disable CS8603 
-        public DbContext DbContext()
-        {
-            return Context as DbContext;
-        }
+        #pragma warning disable CS8603
+        public DbContext DbContext() { return Context as DbContext; }
 
         /// <summary>
         /// </summary>
@@ -55,9 +51,7 @@ namespace core.data.helper.infrastructures
 
         public abstract IRepository<TEntity> Repository<TEntity>() where TEntity : class;
 
-
         public abstract void Commit();
-
 
         public abstract void Rollback();
 
@@ -80,4 +74,5 @@ namespace core.data.helper.infrastructures
             Disposed = true;
         }
     }
+
 }
