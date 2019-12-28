@@ -8,7 +8,7 @@ namespace core.data.helper.extensions
 #pragma warning disable CS8603
     public static class DbContextExtensions
     {
-        public static DbContext GetObjectContext(this IDbContext? dbContext) => dbContext as DbContext;
+        public static DbContext GetObjectContext(this IDbContext dbContext) => dbContext as DbContext;
 
         public static IDbContextTransaction BeginTransaction(this IDbContext dbContext) => dbContext.Database.BeginTransaction();
 

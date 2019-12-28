@@ -70,9 +70,9 @@ namespace core.data.helper.infrastructures
 
         public override IRepository<TEntity> Repository<TEntity>()
         {
-            var container = Scope.Resolve<IRepository<TEntity>>();
+            var Container = Scope.Resolve<IRepository<TEntity>>();
       
-            return container;
+            return Container;
         }
     }
 }
