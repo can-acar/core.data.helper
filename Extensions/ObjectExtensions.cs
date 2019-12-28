@@ -10,14 +10,14 @@ namespace core.data.helper.extensions
 
         public static T GetPropertyValue<T>(this object obj, Expression<Func<object, object>> property)
         {
-            var PropertyName = ExpressionHelper.GetPropertyName(property);
-            return(T) obj.GetType().GetProperty(PropertyName)?.GetValue(obj, null);
+            var propertyName = ExpressionHelper.GetPropertyName(property);
+            return(T) obj.GetType().GetProperty(propertyName)?.GetValue(obj, null);
         }
 #pragma warning disable CS8603
         public static string GetPropertyName(this object obj, Expression<Func<object, object>> property)
         {
-            var PropertyName = ExpressionHelper.GetPropertyName(property);
-            return obj.GetType().GetProperty(PropertyName)?.Name;
+            var propertyName = ExpressionHelper.GetPropertyName(property);
+            return obj.GetType().GetProperty(propertyName)?.Name;
         }
     }
 
@@ -25,16 +25,16 @@ namespace core.data.helper.extensions
     {
         public static string GetPropertyName(Expression<Func<object, object>> property)
         {
-            var Expr = property.Body;
-            var PropertyName = string.Empty;
+            var expr = property.Body;
+            var propertyName = string.Empty;
 
-            if(Expr is UnaryExpression)
-                PropertyName =
+            if(expr is UnaryExpression)
+                propertyName =
                     ((MemberExpression)
                         ((UnaryExpression) property.Body).Operand).Member.Name;
-            else if(Expr is MemberExpression) PropertyName = ((MemberExpression) property.Body).Member.Name;
+            else if(expr is MemberExpression) propertyName = ((MemberExpression) property.Body).Member.Name;
 
-            return PropertyName;
+            return propertyName;
         }
     }
 }

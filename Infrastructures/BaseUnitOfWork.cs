@@ -11,40 +11,40 @@ namespace core.data.helper.infrastructures
     /// <typeparam name="TContext"></typeparam>
     public abstract class BaseUnitOfWork<TContext> : IUnitOfWork where TContext : class, IDisposable
     {
-        private readonly IContextAdaptor<TContext> ContextAdaptor;
-        private TContext Context;
-        private bool Disposed;
+        private readonly IContextAdaptor<TContext> contextAdaptor;
+        private TContext context;
+        private bool disposed;
 
         /// <summary>
         /// </summary>
         /// <param name="contextAdaptor"></param>
         protected BaseUnitOfWork(IContextAdaptor<TContext> contextAdaptor)
         {
-            ContextAdaptor = contextAdaptor;
+            this.contextAdaptor = contextAdaptor;
         }
 
         protected bool LazyLoadingEnabled
         {
-            set => (Context as DbContext).ChangeTracker.LazyLoadingEnabled = value; //DbContext().ChangeTracker.LazyLoadingEnabled = value;
-            get => (Context as DbContext).ChangeTracker.LazyLoadingEnabled;
+            set => (context as DbContext).ChangeTracker.LazyLoadingEnabled = value; //DbContext().ChangeTracker.LazyLoadingEnabled = value;
+            get => (context as DbContext).ChangeTracker.LazyLoadingEnabled;
         }
 
         protected TContext DataContext
         {
             get
             {
-                if (Context != null)
-                    return Context;
+                if (context != null)
+                    return context;
 
-                Context = ContextAdaptor.GetContext();
+                context = contextAdaptor.GetContext();
 
-                return Context;
+                return context;
             }
         }
 #pragma warning disable CS8603
         public DbContext DbContext()
         {
-            return Context as DbContext;
+            return context as DbContext;
         }
 
         /// <summary>
@@ -71,11 +71,11 @@ namespace core.data.helper.infrastructures
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!Disposed)
+            if (!disposed)
                 if (disposing)
                     DataContext.Dispose();
 
-            Disposed = true;
+            disposed = true;
         }
     }
 }

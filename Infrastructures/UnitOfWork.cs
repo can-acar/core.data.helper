@@ -10,10 +10,10 @@ namespace core.data.helper.infrastructures
 #pragma warning disable CS8603
     public class UnitOfWork<TContext>: BaseUnitOfWork<TContext> where TContext:class, IDbContext, IDisposable
     {
-        private readonly IComponentContext Scope;
-        private IDbContextTransaction ContextTransaction;
+        private readonly IComponentContext scope;
+        private IDbContextTransaction contextTransaction;
 
-        public UnitOfWork(IContextAdaptor<TContext> contextAdaptor, IComponentContext scope): base(contextAdaptor) { Scope = scope; }
+        public UnitOfWork(IContextAdaptor<TContext> contextAdaptor, IComponentContext scope): base(contextAdaptor) { this.scope = scope; }
 
         /// <inheritdoc />
         /// <summary>
@@ -21,26 +21,26 @@ namespace core.data.helper.infrastructures
         /// <returns></returns>
         public override IDbContextTransaction BeginTransaction()
         {
-            ContextTransaction = DataContext.Database.BeginTransaction();
-            return ContextTransaction;
+            contextTransaction = DataContext.Database.BeginTransaction();
+            return contextTransaction;
         }
 
         public override IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
-            ContextTransaction = DataContext.Database.BeginTransaction();
-            return ContextTransaction;
+            contextTransaction = DataContext.Database.BeginTransaction();
+            return contextTransaction;
         }
 
 
         /// <summary>
         /// </summary>
-        public override void Commit() { ContextTransaction?.Commit(); }
+        public override void Commit() { contextTransaction?.Commit(); }
 
         /// <summary>
         /// </summary>
         public override void Rollback()
         {
-            if(DataContext != null) ContextTransaction.Rollback();
+            if(DataContext != null) contextTransaction.Rollback();
         }
 
         /// <summary>
@@ -66,9 +66,9 @@ namespace core.data.helper.infrastructures
 
         public override IRepository<TEntity> Repository<TEntity>()
         {
-            var Container = Scope.Resolve<IRepository<TEntity>>();
+            var container = scope.Resolve<IRepository<TEntity>>();
 
-            return Container;
+            return container;
         }
     }
 }
