@@ -8,21 +8,18 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace core.data.helper.infrastructures
 {
-
-    #pragma warning disable CS8603
-    public abstract class BaseRepository<TContext> where TContext : class, IDisposable
+#pragma warning disable CS8603
+    public abstract class BaseRepository<TContext> where TContext:class, IDisposable
     {
         private readonly IContextAdaptor<TContext> ContextAdaptor;
 
         private DbContext Context;
-
         protected BaseRepository(IContextAdaptor<TContext> contextAdaptor) { ContextAdaptor = contextAdaptor; }
-
         protected DbContext DbContext
         {
             get
             {
-                if (Context != null)
+                if(Context != null)
                     return Context;
 
                 return Context = ContextAdaptor.GetContext() as DbContext;
@@ -30,13 +27,13 @@ namespace core.data.helper.infrastructures
         }
     }
 
-    public abstract class Repository<TEntity, TContext> : BaseRepository<TContext>
-    where TEntity : class, new()
-    where TContext : class, IDisposable
+    public abstract class Repository<TEntity, TContext>: BaseRepository<TContext>
+        where TEntity:class, new()
+        where TContext:class, IDisposable
     {
-        protected Repository(IContextAdaptor<TContext> contextAdaptor) : base(contextAdaptor)
+        protected Repository(IContextAdaptor<TContext> contextAdaptor): base(contextAdaptor)
         {
-            DbSet  = DbContext.Set<TEntity>();
+            DbSet = DbContext.Set<TEntity>();
             Entity = DbContext.Set<TEntity>();
         }
 
@@ -311,7 +308,7 @@ namespace core.data.helper.infrastructures
             var RowsCount = PerformInclusions(includeProperties).Count();
             rowsCount(RowsCount);
             return Task.Run(() => PerformInclusions(includeProperties)
-                                  .Skip((currentPage - 1) * limit).Take(limit).AsQueryable());
+                .Skip((currentPage - 1) * limit).Take(limit).AsQueryable());
         }
 
         /// <summary>
@@ -330,23 +327,22 @@ namespace core.data.helper.infrastructures
         {
             //DbSet = DbContext.Set<TEntity>();
 
-            if (DbContext.Entry(entity).State == EntityState.Detached) DbSet.Attach(entity);
+            if(DbContext.Entry(entity).State == EntityState.Detached) DbSet.Attach(entity);
 
             DbSet.Remove(entity);
         }
 
         public virtual void Delete(Expression<Func<TEntity, bool>> match)
         {
-          
-
             var Items = DbSet.Where(match);
-            foreach (var entity in Items)
+            foreach(var entity in Items)
             {
-                if (DbContext.Entry(entity).State == EntityState.Detached) DbSet.Attach(entity);
+                if(DbContext.Entry(entity).State == EntityState.Detached) DbSet.Attach(entity);
 
                 DbSet.Remove(entity);
             }
         }
+
         /// <summary>
         /// </summary>
         /// <param name="entity"></param>
@@ -354,7 +350,7 @@ namespace core.data.helper.infrastructures
         {
             //DbSet = DbContext.Set<TEntity>();
 
-            if (DbContext.Entry(entity).State == EntityState.Detached) DbSet.Attach(entity);
+            if(DbContext.Entry(entity).State == EntityState.Detached) DbSet.Attach(entity);
 
             await Task.Run(() => DbSet.Remove(entity));
         }
@@ -402,12 +398,12 @@ namespace core.data.helper.infrastructures
         /// <returns></returns>
         public virtual TEntity Update(TEntity entity, Expression<Func<TEntity, bool>> match)
         {
-            if (entity == null)
+            if(entity == null)
                 return null;
 
             var Existing = DbSet.SingleOrDefault(match);
 
-            if (Existing == null) return new TEntity();
+            if(Existing == null) return new TEntity();
 
             DbContext.Entry(entity).State = EntityState.Modified;
             DbSet.Update(entity);
@@ -445,5 +441,4 @@ namespace core.data.helper.infrastructures
         /// <param name="objects"></param>
         public virtual int ExecuteSqlCommand(string query, params object[] objects) { return DbContext.Database.ExecuteSqlRaw(query, objects); }
     }
-
 }

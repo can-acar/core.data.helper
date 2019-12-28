@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace core.data.helper.infrastructures
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork: IDisposable
     {
         IDbContextTransaction BeginTransaction();
 
         IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel);
 
-        IRepository<TEntity> Repository<TEntity>() where TEntity : class;
+        IRepository<TEntity> Repository<TEntity>() where TEntity:class;
 
         void Rollback();
 

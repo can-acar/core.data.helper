@@ -7,16 +7,13 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace core.data.helper.infrastructures
 {
-#pragma warning disable CS8603 
-    public class UnitOfWork<TContext> : BaseUnitOfWork<TContext> where TContext : class, IDbContext, IDisposable
+#pragma warning disable CS8603
+    public class UnitOfWork<TContext>: BaseUnitOfWork<TContext> where TContext:class, IDbContext, IDisposable
     {
         private readonly IComponentContext Scope;
         private IDbContextTransaction ContextTransaction;
 
-        public UnitOfWork(IContextAdaptor<TContext> contextAdaptor, IComponentContext scope) : base(contextAdaptor)
-        {
-            Scope = scope;
-        }
+        public UnitOfWork(IContextAdaptor<TContext> contextAdaptor, IComponentContext scope): base(contextAdaptor) { Scope = scope; }
 
         /// <inheritdoc />
         /// <summary>
@@ -34,19 +31,16 @@ namespace core.data.helper.infrastructures
             return ContextTransaction;
         }
 
-       
+
         /// <summary>
         /// </summary>
-        public override void Commit()
-        {
-            ContextTransaction?.Commit();
-        }
+        public override void Commit() { ContextTransaction?.Commit(); }
 
         /// <summary>
         /// </summary>
         public override void Rollback()
         {
-            if (DataContext != null) ContextTransaction.Rollback();
+            if(DataContext != null) ContextTransaction.Rollback();
         }
 
         /// <summary>
@@ -54,9 +48,9 @@ namespace core.data.helper.infrastructures
         /// <returns></returns>
         public override int SaveChanges()
         {
-            if (DataContext != null) return DataContext.GetObjectContext().SaveChanges();
+            if(DataContext != null) return DataContext.GetObjectContext().SaveChanges();
 
-            return -1;
+            return-1;
         }
 
         /// <summary>
@@ -64,14 +58,16 @@ namespace core.data.helper.infrastructures
         /// <returns></returns>
         public override Task<int> SaveChangesAsync()
         {
-            return DataContext != null ? DataContext.GetObjectContext().SaveChangesAsync() : Task.FromResult(-1);
+            return DataContext != null
+                ? DataContext.GetObjectContext().SaveChangesAsync()
+                : Task.FromResult(-1);
         }
 
 
         public override IRepository<TEntity> Repository<TEntity>()
         {
             var Container = Scope.Resolve<IRepository<TEntity>>();
-      
+
             return Container;
         }
     }
