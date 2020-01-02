@@ -10,5 +10,4 @@ namespace core.data.helper.infrastructures
         /// <returns></returns>
         TContext GetContext();
     }
-
 }

@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace core.data.helper.extensions
 {
-
-    #pragma warning disable CS8603
+#pragma warning disable CS8603
     public static class DbContextExtensions
     {
         public static DbContext GetObjectContext(this IDbContext dbContext) => dbContext as DbContext;
@@ -22,5 +21,4 @@ namespace core.data.helper.extensions
 
         //public static TContext GetContext<TContext>(this TContext context) where TContext : class, new() => new TContext();
     }
-
 }

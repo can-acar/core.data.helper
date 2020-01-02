@@ -13,7 +13,7 @@ namespace core.data.helper.infrastructures
 
         IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel);
 
-        IRepository<TEntity> Repository<TEntity>() where TEntity : class;
+        IRepository<TEntity> Repository<TEntity>() where TEntity:class;
 
         void Rollback();
 

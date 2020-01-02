@@ -11,13 +11,12 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace core.data.helper.extensions
 {
-
     #pragma warning disable CS8603
     public static class QueryableExtensions
     {
         public static ProjectionExpression<TSource> Project<TSource>(this IQueryable<TSource> source) { return new ProjectionExpression<TSource>(source); }
 
-        public static IQueryable<TResult> Select<TEntity, TResult>(this IRepository<TEntity> source, Expression<Func<TEntity, TResult>> query) where TEntity : class
+        public static IQueryable<TResult> Select<TEntity, TResult>(this IRepository<TEntity> source, Expression<Func<TEntity, TResult>> query) where TEntity:class
         {
             //            MethodInfo MethodInfo = new Func<IQueryable<object>, Expression<Func<object, object>>, IQueryable<object>>(Queryable.Select<object, object>).GetMethodInfo()
             //                .GetGenericMethodDefinition();
@@ -102,13 +101,18 @@ namespace core.data.helper.extensions
         {
             rowCount = source.Count();
 
-            return source.AsQueryable().Skip((currentPage - 1) * limit).Take(limit);
+            return source.AsQueryable()
+                         .Skip((currentPage - 1) * limit)
+                         .Take(limit);
         }
 
         public static async Task<TEntity[]> PaginationAsync<TEntity>(this IQueryable<TEntity> source, int currentPage,
                                                                      int limit) where TEntity : class
         {
-            return await source.AsNoTracking().Skip((currentPage - 1) * limit).Take(limit).ToArrayAsync();
+            return await source.AsNoTracking()
+                               .Skip((currentPage - 1) * limit)
+                               .Take(limit)
+                               .ToArrayAsync();
         }
 
         public static Task<IQueryable<TSource>> WhereAsync<TSource>(this IQueryable<TSource> source,
@@ -124,22 +128,24 @@ namespace core.data.helper.extensions
         // ReSharper disable once StaticMemberInGenericType
         private static readonly Dictionary<string, Expression> ExpressionCache = new Dictionary<string, Expression>();
 
-        private readonly IQueryable<TSource> Source;
+        private readonly IQueryable<TSource> source;
 
         public ProjectionExpression(IQueryable<TSource> source) { Source = source; }
 
         public IQueryable<TDest> To<TDest>()
         {
-            var QueryExpression = GetCachedExpression<TDest>() ?? BuildExpression<TDest>();
+            var queryExpression = GetCachedExpression<TDest>() ?? BuildExpression<TDest>();
 
-            return Source.Select(QueryExpression);
+            return source.Select(queryExpression);
         }
         #pragma warning disable CS8603
         private static Expression<Func<TSource, TDest>> GetCachedExpression<TDest>()
         {
-            var Key = GetCacheKey<TDest>();
+            var key = GetCacheKey<TDest>();
 
-            return ExpressionCache.ContainsKey(Key) ? ExpressionCache[Key] as Expression<Func<TSource, TDest>> : null;
+            return ExpressionCache.ContainsKey(key)
+                       ? ExpressionCache[key] as Expression<Func<TSource, TDest>>
+                       : null;
         }
 
         private static Expression<Func<TSource, TDest>> BuildExpression<TDest>()
@@ -157,22 +163,37 @@ namespace core.data.helper.extensions
                 Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), Bindings),
                                                         ParameterExpression);
 
-            var Key = GetCacheKey<TDest>();
+            var bindings = destinationProperties
+                          .Select(destinationProperty =>
+                                      BuildBinding(parameterExpression, destinationProperty, sourceProperties))
+                          .Where(binding => binding != null);
 
-            ExpressionCache.Add(Key, ExpressionLambda);
+            var expressionLambda =
+                Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), bindings),
+                                                        parameterExpression);
 
-            return ExpressionLambda;
+            var key = GetCacheKey<TDest>();
+
+            ExpressionCache.Add(key, expressionLambda);
+
+            return expressionLambda;
         }
         #pragma warning restore CS8603
         private static MemberAssignment BuildBinding(Expression parameterExpression, MemberInfo destinationProperty,
                                                      IEnumerable<PropertyInfo> sourceProperties)
         {
-            IEnumerable<PropertyInfo> PropertyInfos = sourceProperties as PropertyInfo[] ?? sourceProperties.ToArray();
-            var SourceProperty =
-                PropertyInfos.FirstOrDefault(src => src.Name == destinationProperty.Name);
+            IEnumerable<PropertyInfo> propertyInfos = sourceProperties as PropertyInfo[] ?? sourceProperties.ToArray();
 
-            if (SourceProperty != null)
-                return Expression.Bind(destinationProperty, Expression.Property(parameterExpression, SourceProperty));
+            var sourceProperty =
+                propertyInfos.FirstOrDefault(src => src.Name == destinationProperty.Name);
+
+            if(sourceProperty != null)
+                return Expression.Bind(destinationProperty, Expression.Property(parameterExpression, sourceProperty));
+
+            var propertyNames = SplitCamelCase(destinationProperty.Name);
+            #pragma warning disable CS8603
+            if(propertyNames.Length != 2)
+                return null;
 
             var PropertyNames = SplitCamelCase(destinationProperty.Name);
             #pragma warning disable CS8603
@@ -185,7 +206,7 @@ namespace core.data.helper.extensions
                     var SourceChildProperty = SourceProperty.PropertyType.GetProperties()
                                                             .FirstOrDefault(src => src.Name == PropertyNames[1]);
 
-                    if (SourceChildProperty != null)
+                    if(sourceChildProperty != null)
                         return Expression.Bind(destinationProperty,
                                                Expression
                                                    .Property(Expression.Property(parameterExpression, SourceProperty),

@@ -11,8 +11,8 @@ namespace core.data.helper.infrastructures
     #pragma warning disable CS8603
     public class UnitOfWork<TContext> : BaseUnitOfWork<TContext> where TContext : class, IDbContext, IDisposable
     {
-        private readonly IComponentContext Scope;
-        private IDbContextTransaction ContextTransaction;
+        private readonly IComponentContext scope;
+        private IDbContextTransaction contextTransaction;
 
         public UnitOfWork(IContextAdaptor<TContext> contextAdaptor, IComponentContext scope) : base(contextAdaptor) { Scope = scope; }
 
@@ -22,14 +22,14 @@ namespace core.data.helper.infrastructures
         /// <returns></returns>
         public override IDbContextTransaction BeginTransaction()
         {
-            ContextTransaction = DataContext.Database.BeginTransaction();
-            return ContextTransaction;
+            contextTransaction = DataContext.Database.BeginTransaction();
+            return contextTransaction;
         }
 
         public override IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
-            ContextTransaction = DataContext.Database.BeginTransaction();
-            return ContextTransaction;
+            contextTransaction = DataContext.Database.BeginTransaction();
+            return contextTransaction;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace core.data.helper.infrastructures
         /// </summary>
         public override void Rollback()
         {
-            if (DataContext != null) ContextTransaction.Rollback();
+            if(DataContext != null) contextTransaction.Rollback();
         }
 
         /// <summary>
@@ -48,9 +48,9 @@ namespace core.data.helper.infrastructures
         /// <returns></returns>
         public override int SaveChanges()
         {
-            if (DataContext != null) return DataContext.GetObjectContext().SaveChanges();
+            if(DataContext != null) return DataContext.GetObjectContext().SaveChanges();
 
-            return -1;
+            return-1;
         }
 
         /// <summary>
