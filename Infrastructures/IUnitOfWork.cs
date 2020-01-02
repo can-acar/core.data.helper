@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace core.data.helper.infrastructures
 {
+
     public interface IUnitOfWork : IDisposable
     {
         IDbContextTransaction BeginTransaction();
@@ -24,4 +25,5 @@ namespace core.data.helper.infrastructures
 
         DbContext DbContext();
     }
+
 }

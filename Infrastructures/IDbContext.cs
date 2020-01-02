@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace core.data.helper.infrastructures
 {
+
     public interface IDbContext : IDisposable
     {
         DatabaseFacade Database { get; }

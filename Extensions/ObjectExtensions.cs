@@ -3,20 +3,18 @@ using System.Linq.Expressions;
 
 namespace core.data.helper.extensions
 {
-#pragma warning disable CS8603 
+
+    #pragma warning disable CS8603
     public static class ObjectExtensions
     {
-        public static T GetPropertyValue<T>(this object obj, string property)
-        {
-            return (T) obj.GetType().GetProperty(property)?.GetValue(obj, null);
-        }
+        public static T GetPropertyValue<T>(this object obj, string property) { return (T) obj.GetType().GetProperty(property)?.GetValue(obj, null); }
 
         public static T GetPropertyValue<T>(this object obj, Expression<Func<object, object>> property)
         {
             var PropertyName = ExpressionHelper.GetPropertyName(property);
             return (T) obj.GetType().GetProperty(PropertyName)?.GetValue(obj, null);
         }
-#pragma warning disable CS8603 
+        #pragma warning disable CS8603
         public static string GetPropertyName(this object obj, Expression<Func<object, object>> property)
         {
             var PropertyName = ExpressionHelper.GetPropertyName(property);
@@ -28,7 +26,7 @@ namespace core.data.helper.extensions
     {
         public static string GetPropertyName(Expression<Func<object, object>> property)
         {
-            var Expr = property.Body;
+            var Expr         = property.Body;
             var PropertyName = string.Empty;
 
             if (Expr is UnaryExpression)
@@ -40,4 +38,5 @@ namespace core.data.helper.extensions
             return PropertyName;
         }
     }
+
 }

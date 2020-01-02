@@ -337,8 +337,6 @@ namespace core.data.helper.infrastructures
 
         public virtual void Delete(Expression<Func<TEntity, bool>> match)
         {
-          
-
             var Items = DbSet.Where(match);
             foreach (var entity in Items)
             {
@@ -347,6 +345,7 @@ namespace core.data.helper.infrastructures
                 DbSet.Remove(entity);
             }
         }
+
         /// <summary>
         /// </summary>
         /// <param name="entity"></param>

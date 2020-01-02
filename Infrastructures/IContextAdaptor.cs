@@ -2,6 +2,7 @@ using System;
 
 namespace core.data.helper.infrastructures
 {
+
     public interface IContextAdaptor<out TContext> : IDisposable where TContext : IDisposable
     {
         /// <summary>
@@ -9,4 +10,5 @@ namespace core.data.helper.infrastructures
         /// <returns></returns>
         TContext GetContext();
     }
+
 }
