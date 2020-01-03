@@ -11,19 +11,19 @@ namespace core.data.helper.infrastructures
     #pragma warning disable CS8603
     public abstract class BaseRepository<TContext> where TContext:class, IDisposable
     {
-        private readonly IContextAdaptor<TContext> contextAdaptor;
+        private readonly IContextAdaptor<TContext> ContextAdaptor;
 
-        private DbContext context;
-        protected BaseRepository(IContextAdaptor<TContext> contextAdaptor) { this.contextAdaptor = contextAdaptor; }
+        private DbContext Context;
+        protected BaseRepository(IContextAdaptor<TContext> contextAdaptor) { this.ContextAdaptor = contextAdaptor; }
 
         protected DbContext DbContext
         {
             get
             {
-                if(context != null)
-                    return context;
+                if(Context != null)
+                    return Context;
 
-                return context = contextAdaptor.GetContext() as DbContext;
+                return Context = ContextAdaptor.GetContext() as DbContext;
             }
         }
     }
@@ -403,13 +403,13 @@ namespace core.data.helper.infrastructures
         public virtual void Delete(Expression<Func<TEntity, bool>> match)
         {
             var Items = DbSet.Where(match);
-            foreach (var entity in Items)
+            foreach (var Entity in Items)
             {
-                if(DbContext.Entry(entity)
+                if(DbContext.Entry(Entity)
                             .State == EntityState.Detached)
-                    DbSet.Attach(entity);
+                    DbSet.Attach(Entity);
 
-                DbSet.Remove(entity);
+                DbSet.Remove(Entity);
             }
         }
 
@@ -491,9 +491,9 @@ namespace core.data.helper.infrastructures
             if(entity == null)
                 return null;
 
-            var existing = DbSet.SingleOrDefault(match);
+            var Existing = DbSet.SingleOrDefault(match);
 
-            if(existing == null)
+            if(Existing == null)
                 return new TEntity();
 
             DbContext.Entry(entity)
@@ -501,7 +501,7 @@ namespace core.data.helper.infrastructures
 
             DbSet.Update(entity);
 
-            return existing;
+            return Existing;
         }
 
         /// <summary>

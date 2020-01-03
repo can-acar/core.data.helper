@@ -11,8 +11,8 @@ namespace core.data.helper.infrastructures
     #pragma warning disable CS8603
     public class UnitOfWork<TContext> : BaseUnitOfWork<TContext> where TContext : class, IDbContext, IDisposable
     {
-        private readonly IComponentContext scope;
-        private IDbContextTransaction contextTransaction;
+        private readonly IComponentContext Scope;
+        private IDbContextTransaction ContextTransaction;
 
         public UnitOfWork(IContextAdaptor<TContext> contextAdaptor, IComponentContext scope) : base(contextAdaptor) { Scope = scope; }
 
@@ -22,14 +22,14 @@ namespace core.data.helper.infrastructures
         /// <returns></returns>
         public override IDbContextTransaction BeginTransaction()
         {
-            contextTransaction = DataContext.Database.BeginTransaction();
-            return contextTransaction;
+            ContextTransaction = DataContext.Database.BeginTransaction();
+            return ContextTransaction;
         }
 
         public override IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
-            contextTransaction = DataContext.Database.BeginTransaction();
-            return contextTransaction;
+            ContextTransaction = DataContext.Database.BeginTransaction();
+            return ContextTransaction;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace core.data.helper.infrastructures
         /// </summary>
         public override void Rollback()
         {
-            if(DataContext != null) contextTransaction.Rollback();
+            if(DataContext != null) ContextTransaction.Rollback();
         }
 
         /// <summary>
@@ -60,9 +60,9 @@ namespace core.data.helper.infrastructures
 
         public override IRepository<TEntity> Repository<TEntity>()
         {
-            var container = Scope.Resolve<IRepository<TEntity>>();
+            var Container = Scope.Resolve<IRepository<TEntity>>();
 
-            return container;
+            return Container;
         }
     }
 

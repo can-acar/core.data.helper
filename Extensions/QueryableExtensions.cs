@@ -11,12 +11,13 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace core.data.helper.extensions
 {
+
     #pragma warning disable CS8603
     public static class QueryableExtensions
     {
         public static ProjectionExpression<TSource> Project<TSource>(this IQueryable<TSource> source) { return new ProjectionExpression<TSource>(source); }
 
-        public static IQueryable<TResult> Select<TEntity, TResult>(this IRepository<TEntity> source, Expression<Func<TEntity, TResult>> query) where TEntity:class
+        public static IQueryable<TResult> Select<TEntity, TResult>(this IRepository<TEntity> source, Expression<Func<TEntity, TResult>> query) where TEntity : class
         {
             //            MethodInfo MethodInfo = new Func<IQueryable<object>, Expression<Func<object, object>>, IQueryable<object>>(Queryable.Select<object, object>).GetMethodInfo()
             //                .GetGenericMethodDefinition();
@@ -128,24 +129,24 @@ namespace core.data.helper.extensions
         // ReSharper disable once StaticMemberInGenericType
         private static readonly Dictionary<string, Expression> ExpressionCache = new Dictionary<string, Expression>();
 
-        private readonly IQueryable<TSource> source;
+        private readonly IQueryable<TSource> Source;
 
         public ProjectionExpression(IQueryable<TSource> source) { Source = source; }
 
         public IQueryable<TDest> To<TDest>()
         {
-            var queryExpression = GetCachedExpression<TDest>() ?? BuildExpression<TDest>();
+            var QueryExpression = GetCachedExpression<TDest>() ?? BuildExpression<TDest>();
 
-            return source.Select(queryExpression);
+            return Source.Select(QueryExpression);
         }
         #pragma warning disable CS8603
         private static Expression<Func<TSource, TDest>> GetCachedExpression<TDest>()
         {
-            var key = GetCacheKey<TDest>();
+            var Key = GetCacheKey<TDest>();
 
-            return ExpressionCache.ContainsKey(key)
-                       ? ExpressionCache[key] as Expression<Func<TSource, TDest>>
-                       : null;
+            return ExpressionCache.ContainsKey(Key)
+                ? ExpressionCache[Key] as Expression<Func<TSource, TDest>>
+                : null;
         }
 
         private static Expression<Func<TSource, TDest>> BuildExpression<TDest>()
@@ -159,43 +160,41 @@ namespace core.data.helper.extensions
                                        BuildBinding(ParameterExpression, destinationProperty, SourceProperties))
                            .Where(binding => binding != null);
 
-            var ExpressionLambda =
-                Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), Bindings),
-                                                        ParameterExpression);
+            var ExpressionLambda = Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), Bindings),
+                                                                           ParameterExpression);
 
-            var bindings = destinationProperties
-                          .Select(destinationProperty =>
-                                      BuildBinding(parameterExpression, destinationProperty, sourceProperties))
-                          .Where(binding => binding != null);
+            Bindings = DestinationProperties
+                       .Select(destinationProperty =>
+                                   BuildBinding(ParameterExpression, destinationProperty, SourceProperties))
+                       .Where(binding => binding != null);
 
-            var expressionLambda =
-                Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), bindings),
-                                                        parameterExpression);
+            ExpressionLambda = Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), Bindings),
+                                                                       ParameterExpression);
 
-            var key = GetCacheKey<TDest>();
+            var Key = GetCacheKey<TDest>();
 
-            ExpressionCache.Add(key, expressionLambda);
+            ExpressionCache.Add(Key, ExpressionLambda);
 
-            return expressionLambda;
+            return ExpressionLambda;
         }
         #pragma warning restore CS8603
         private static MemberAssignment BuildBinding(Expression parameterExpression, MemberInfo destinationProperty,
                                                      IEnumerable<PropertyInfo> sourceProperties)
         {
-            IEnumerable<PropertyInfo> propertyInfos = sourceProperties as PropertyInfo[] ?? sourceProperties.ToArray();
+            IEnumerable<PropertyInfo> PropertyInfos = sourceProperties as PropertyInfo[] ?? sourceProperties.ToArray();
 
-            var sourceProperty =
-                propertyInfos.FirstOrDefault(src => src.Name == destinationProperty.Name);
+            var SourceProperty =
+                PropertyInfos.FirstOrDefault(src => src.Name == destinationProperty.Name);
 
-            if(sourceProperty != null)
-                return Expression.Bind(destinationProperty, Expression.Property(parameterExpression, sourceProperty));
-
-            var propertyNames = SplitCamelCase(destinationProperty.Name);
-            #pragma warning disable CS8603
-            if(propertyNames.Length != 2)
-                return null;
+            if (SourceProperty != null)
+                return Expression.Bind(destinationProperty, Expression.Property(parameterExpression, SourceProperty));
 
             var PropertyNames = SplitCamelCase(destinationProperty.Name);
+            #pragma warning disable CS8603
+            if (PropertyNames.Length != 2)
+                return null;
+
+            PropertyNames = SplitCamelCase(destinationProperty.Name);
             #pragma warning disable CS8603
             if (PropertyNames.Length != 2) return null;
             {
@@ -206,7 +205,7 @@ namespace core.data.helper.extensions
                     var SourceChildProperty = SourceProperty.PropertyType.GetProperties()
                                                             .FirstOrDefault(src => src.Name == PropertyNames[1]);
 
-                    if(sourceChildProperty != null)
+                    if (SourceProperty != null)
                         return Expression.Bind(destinationProperty,
                                                Expression
                                                    .Property(Expression.Property(parameterExpression, SourceProperty),

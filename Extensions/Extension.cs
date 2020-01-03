@@ -10,31 +10,31 @@ namespace core.data.helper.extensions
         private static IEnumerable<TList> Split<TList, T>(this TList value, int countOfEachPart)
         where TList:IEnumerable<T>
         {
-            var cnt    = value.Count() / countOfEachPart;
-            var result = new List<IEnumerable<T>>();
+            var Cnt    = value.Count() / countOfEachPart;
+            var Result = new List<IEnumerable<T>>();
 
-            for(var I = 0; I <= cnt; I++)
+            for(var I = 0; I <= Cnt; I++)
             {
-                IEnumerable<T> newPart = value.Skip(I * countOfEachPart)
+                IEnumerable<T> NewPart = value.Skip(I * countOfEachPart)
                                               .Take(countOfEachPart)
                                               .ToArray();
 
-                if(newPart.Any())
-                    result.Add(newPart);
+                if(NewPart.Any())
+                    Result.Add(NewPart);
                 else
                     break;
             }
 
-            return result.Cast<TList>();
+            return Result.Cast<TList>();
         }
         #pragma warning disable CS8603, notnull
         public static IEnumerable<IDictionary<TKey, TValue>> Split<TKey, TValue>(this IDictionary<TKey, TValue> value, int countOfEachPart)
         {
-            var result = value.ToArray()
+            var Result = value.ToArray()
                               .Split(countOfEachPart)
                               .Select(p => p.ToDictionary(k => k.Key, v => v.Value));
 
-            return result;
+            return Result;
         }
 
         public static IEnumerable<IList<T>> Split<T>(this IList<T> value, int countOfEachPart) { return value.Split<IList<T>, T>(countOfEachPart); }
@@ -45,8 +45,8 @@ namespace core.data.helper.extensions
 
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
-            foreach(var element in source)
-                action(element);
+            foreach(var Element in source)
+                action(Element);
         }
     }
 }

@@ -6,11 +6,11 @@ namespace core.data.helper.infrastructures
     #pragma warning disable CS8603
     public class ContextAdaptor<TContext> : IContextAdaptor<TContext> where TContext : class, IDbContext, IDisposable
     {
-        private readonly TContext dataContext;
+        private readonly TContext DataContext;
 
         public ContextAdaptor(TContext context)
         {
-            dataContext = context;
+            DataContext = context;
         }
 
         public ContextAdaptor()
@@ -19,12 +19,12 @@ namespace core.data.helper.infrastructures
 
         public TContext GetContext()
         {
-            return dataContext;
+            return DataContext;
         }
 
         public void Dispose()
         {
-            dataContext?.Dispose();
+            DataContext?.Dispose();
         }
     }
 }
