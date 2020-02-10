@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using core.data.helper.infrastructures;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Query;
 namespace core.data.helper.extensions
 {
 
-    #pragma warning disable CS8603
     public static class QueryableExtensions
     {
         public static ProjectionExpression<TSource> Project<TSource>(this IQueryable<TSource> source) { return new ProjectionExpression<TSource>(source); }
@@ -88,113 +86,259 @@ namespace core.data.helper.extensions
 
         public static async Task<TEntity[]> PaginationAsync<TEntity>(this IQueryable<TEntity> source, int currentPage,
                                                                      int limit) where TEntity : class =>
-            await source.AsNoTracking()
-                        .Skip((currentPage - 1) * limit)
-                        .Take(limit)
-                        .ToArrayAsync();
+            await source
+                  .Skip((currentPage - 1) * limit)
+                  .Take(limit)
+                  .ToArrayAsync();
 
         public static Task<IQueryable<TSource>> WhereAsync<TSource>(this IQueryable<TSource> source,
                                                                     Expression<Func<TSource, bool>> predicate) where TSource : class
         {
             return Task.Run(() => source.Where(predicate));
         }
-    }
 
-    #pragma warning restore CS8603
-    public class ProjectionExpression<TSource>
-    {
-        // ReSharper disable once StaticMemberInGenericType
-        private static readonly Dictionary<string, Expression> ExpressionCache = new Dictionary<string, Expression>();
-
-        private readonly IQueryable<TSource> Source;
-
-        public ProjectionExpression(IQueryable<TSource> source) { Source = source; }
-
-        public IQueryable<TDest> To<TDest>()
+        public static IQueryable<T> Select<T>(this IQueryable<T> source, string columnName)
         {
-            var QueryExpression = GetCachedExpression<TDest>() ?? BuildExpression<TDest>();
+            if (String.IsNullOrEmpty(columnName)) { return source; }
 
-            return Source.Select(QueryExpression);
-        }
-        #pragma warning disable CS8603
-        private static Expression<Func<TSource, TDest>> GetCachedExpression<TDest>()
-        {
-            var Key = GetCacheKey<TDest>();
+            var Parameter = Expression.Parameter(source.ElementType, "");
+            var Property  = Expression.Property(Parameter, columnName);
+            var Lambda    = Expression.Lambda(Property, Parameter);
 
-            return ExpressionCache.ContainsKey(Key)
-                ? ExpressionCache[Key] as Expression<Func<TSource, TDest>>
-                : null;
+            //string methodName = isAscending ? "OrderBy" : "OrderByDescending";  
+            const string MethodName = "Select"; // : "OrderByDescending";  
+
+            Expression MethodCallExpression = Expression.Call(typeof(Queryable), MethodName,
+                                                              new[] {source.ElementType, Property.Type},
+                                                              source.Expression, Expression.Quote(Lambda));
+
+            return source.Provider.CreateQuery<T>(MethodCallExpression).AsQueryable();
         }
 
-        private static Expression<Func<TSource, TDest>> BuildExpression<TDest>()
+        private static class PropertyAccessorCache<T> where T : class
         {
-            var SourceProperties      = typeof(TSource).GetProperties();
-            var DestinationProperties = typeof(TDest).GetProperties().Where(dest => dest.CanWrite);
-            var ParameterExpression   = Expression.Parameter(typeof(TSource), "src");
+            private static readonly IDictionary<string, LambdaExpression> Cache;
 
-            var PropertyInfos = DestinationProperties.ToList();
-            var Bindings = PropertyInfos
-                           .Select(destinationProperty =>
-                                       BuildBinding(ParameterExpression, destinationProperty, SourceProperties))
-                           .Where(binding => binding != null);
-
-            var ExpressionLambda = Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), Bindings),
-                                                                           ParameterExpression);
-
-            Bindings = PropertyInfos
-                       .Select(destinationProperty =>
-                                   BuildBinding(ParameterExpression, destinationProperty, SourceProperties))
-                       .Where(binding => binding != null);
-
-            ExpressionLambda = Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), Bindings),
-                                                                       ParameterExpression);
-
-            var Key = GetCacheKey<TDest>();
-
-            ExpressionCache.Add(Key, ExpressionLambda);
-
-            return ExpressionLambda;
-        }
-        #pragma warning restore CS8603
-        private static MemberAssignment BuildBinding(Expression parameterExpression, MemberInfo destinationProperty,
-                                                     IEnumerable<PropertyInfo> sourceProperties)
-        {
-            IEnumerable<PropertyInfo> PropertyInfos = sourceProperties as PropertyInfo[] ?? sourceProperties.ToArray();
-
-            var SourceProperty =
-                PropertyInfos.FirstOrDefault(src => src.Name == destinationProperty.Name);
-
-            if (SourceProperty != null)
-                return Expression.Bind(destinationProperty, Expression.Property(parameterExpression, SourceProperty));
-
-            var PropertyNames = SplitCamelCase(destinationProperty.Name);
-            #pragma warning disable CS8603
-            if (PropertyNames.Length != 2)
-                return null;
-
-            PropertyNames = SplitCamelCase(destinationProperty.Name);
-            #pragma warning disable CS8603
-            if (PropertyNames.Length != 2) return null;
+            static PropertyAccessorCache()
             {
-                SourceProperty = PropertyInfos.FirstOrDefault(src => src.Name == PropertyNames[0]);
-                #pragma warning disable CS8603
-                if (SourceProperty == null) return null;
-                {
-                    var SourceChildProperty = SourceProperty.PropertyType.GetProperties()
-                                                            .FirstOrDefault(src => src.Name == PropertyNames[1]);
+                var Storage = new Dictionary<string, LambdaExpression>();
 
-                    return Expression.Bind(destinationProperty,
-                                           Expression
-                                               .Property(Expression.Property(parameterExpression, SourceProperty),
-                                                         SourceChildProperty ?? throw new ArgumentNullException()));
+                var T         = typeof(T);
+                var Parameter = Expression.Parameter(T, "p");
+                foreach (var Property in T.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                {
+                    var PropertyAccess   = Expression.MakeMemberAccess(Parameter, Property);
+                    var LambdaExpression = Expression.Lambda(PropertyAccess, Parameter);
+                    Storage[Property.Name] = LambdaExpression;
                 }
+
+                Cache = Storage;
             }
-            #pragma warning disable CS8603
+
+            public static LambdaExpression Get(string propertyName) => Cache.TryGetValue(propertyName, out var Result) ? Result : null;
         }
 
-        private static string GetCacheKey<TDest>() { return string.Concat(typeof(TSource).FullName, typeof(TDest).FullName); }
+        public static IQueryable<T> Filter<T>(this IQueryable<T> source,
+                                              string propertyName,
+                                              object propertyValue) where T : class
+        {
+            var Param       = Expression.Parameter(typeof(T), typeof(T).Name.ToLower());
+            var Property    = Expression.Property(Param, propertyName);
+            var SearchValue = Convert.ChangeType(propertyValue, Property.Type);
 
-        private static string[] SplitCamelCase(string input) { return Regex.Replace(input, "([A-Z])", " $1", RegexOptions.Compiled).Trim().Split(' '); }
+
+            Expression MatchExpression = Property;
+            if (MatchExpression.Type != typeof(string))
+            {
+                MatchExpression = Expression.Convert(MatchExpression, typeof(object));
+                MatchExpression = Expression.Convert(MatchExpression, typeof(string));
+            }
+
+            var Pattern = Expression.Constant($"%{SearchValue}%");
+            var Expr = Expression.Call(
+                                       typeof(DbFunctionsExtensions), "Like", Type.EmptyTypes,
+                                       Expression.Constant(EF.Functions), MatchExpression, Pattern);
+
+            return source.Where(Expression.Lambda<Func<T, bool>>(Expr, Param)).AsQueryable();
+        }
+
+        public static IQueryable<T> Where<T>(this IQueryable<T> source,
+                                             string propertyName,
+                                             object propertyValue,
+                                             out bool success) where T : class
+        {
+            success = false;
+            var Mba = PropertyAccessorCache<T>.Get(propertyName);
+            if (Mba == null) return source;
+
+
+            object Value;
+            try { Value = Convert.ChangeType(propertyValue, Mba.ReturnType); }
+            catch (SystemException Ex) when (
+                Ex is InvalidCastException ||
+                Ex is FormatException ||
+                Ex is OverflowException ||
+                Ex is ArgumentNullException) { return source; }
+
+
+            var Eqe = System.Linq.Expressions.Expression.Equal(
+                                                               Mba.Body,
+                                                               System.Linq.Expressions.Expression.Constant(Value, Mba.ReturnType));
+            var Expression = System.Linq.Expressions.Expression.Lambda(Eqe, Mba.Parameters[0]);
+
+
+            success = true;
+            var ResultExpression = System.Linq.Expressions.Expression.Call(
+                                                                           null,
+                                                                           GetMethodInfo<IQueryable<T>, Expression<Func<T, bool>>, IQueryable<T>>(Queryable.Where),
+                                                                           new[] {source.Expression, System.Linq.Expressions.Expression.Quote(Expression)});
+            return source.Provider.CreateQuery<T>(ResultExpression);
+        }
+
+        private static MethodInfo GetMethodInfo<T1, T2, T3>(Func<T1, T2, T3> f) => f.Method;
+
+        public static IQueryable<T> SortBy<T>(this IQueryable<T> source, string columnName)
+        {
+            if (String.IsNullOrEmpty(columnName)) { return source; }
+
+            var Parameter = Expression.Parameter(source.ElementType, "");
+            var Property  = Expression.Property(Parameter, columnName);
+            var Lambda    = Expression.Lambda(Property, Parameter);
+
+            //string methodName = isAscending ? "OrderBy" : "OrderByDescending";  
+            var MethodName = "OrderBy"; // : "OrderByDescending";  
+
+            Expression MethodCallExpression = Expression.Call(typeof(Queryable), MethodName,
+                                                              new[] {source.ElementType, Property.Type},
+                                                              source.Expression, Expression.Quote(Lambda));
+
+            return source.Provider.CreateQuery<T>(MethodCallExpression).AsQueryable();
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="source"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IQueryable<T> SortBy<T>(this IQueryable<T> source, IEnumerable<string> columnNames)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+
+            var QueryExpr = source.Expression;
+            var Parameter = Expression.Parameter(source.ElementType, "");
+
+            var MethodName = "OrderBy";
+
+            foreach (var ColumnName in columnNames)
+            {
+                var Property = Expression.Property(Parameter, ColumnName);
+                var Lambda   = Expression.Lambda(Property, Parameter);
+                QueryExpr = Expression.Call(typeof(Queryable), MethodName,
+                                            new[] {source.ElementType, Property.Type},
+                                            QueryExpr, Expression.Quote(Lambda));
+                MethodName = "ThenBy";
+            }
+
+
+            return source.Provider.CreateQuery<T>(QueryExpr).AsQueryable();
+        }
+
+        public static IQueryable<T> SortBy<T>(this IQueryable<T> source, IList<IDictionary<string, string>> orders)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+
+            var EntityType = source.ElementType;
+
+            var EntityParameter = Expression.Parameter(EntityType, "p");
+
+
+            var    OrderType  = orders[0]["orderType"];
+            string MethodName = OrderType == "asc" ? "OrderBy" : "OrderByDescending";
+
+
+            var OrderBy           = orders[0]["orderBy"];
+            var OrderProperty     = EntityType.GetProperty(OrderBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var PropertyAccess    = Expression.MakeMemberAccess(EntityParameter, OrderProperty);
+            var OrderByExpression = Expression.Lambda(PropertyAccess, EntityParameter);
+            var ResultExpression = Expression.Call(typeof(Queryable),
+                                                   MethodName,
+                                                   new Type[]
+                                                   {
+                                                       EntityType,
+                                                       OrderProperty.PropertyType
+                                                   },
+                                                   source.Expression,
+                                                   Expression.Quote(OrderByExpression));
+
+            var Orders = orders.TakeLast(orders.Count - 1);
+
+            foreach (var order in Orders)
+            {
+                OrderBy           = order["orderBy"];
+                OrderType         = order["orderType"];
+                MethodName        = OrderType == "asc" ? "ThenBy" : "ThenByDescending";
+                OrderProperty     = EntityType.GetProperty(OrderBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                PropertyAccess    = Expression.MakeMemberAccess(EntityParameter, OrderProperty);
+                OrderByExpression = Expression.Lambda(PropertyAccess, EntityParameter);
+                ResultExpression = Expression.Call(typeof(Queryable),
+                                                   MethodName,
+                                                   new Type[]
+                                                   {
+                                                       EntityType,
+                                                       OrderProperty.PropertyType
+                                                   },
+                                                   ResultExpression,
+                                                   Expression.Quote(OrderByExpression));
+            }
+
+
+            return source.Provider.CreateQuery<T>(ResultExpression).AsQueryable();
+        }
+
+        public static IQueryable<T> SortByDescending<T>(this IQueryable<T> source, string columnName)
+        {
+            if (String.IsNullOrEmpty(columnName)) { return source; }
+
+            var Parameter = Expression.Parameter(source.ElementType, "");
+
+            var Property = Expression.Property(Parameter, columnName);
+            var Lambda   = Expression.Lambda(Property, Parameter);
+
+            var MethodName = "OrderByDescending";
+
+            Expression MethodCallExpression = Expression.Call(typeof(Queryable), MethodName,
+                                                              new[] {source.ElementType, Property.Type},
+                                                              source.Expression, Expression.Quote(Lambda));
+
+            return source.Provider.CreateQuery<T>(MethodCallExpression).AsQueryable();
+        }
+
+        // public void TranslateInto(string[] companies) 
+        // { 
+        //     IQueryable<String>  queryableData = companies.AsQueryable(); 
+        //     ParameterExpression pe            = Expression.Parameter(typeof (string), "company"); 
+        //     Expression          right         = Expression.Constant("coho winery"); 
+        //     Expression          equal         = Expression.Equal(pe, right); 
+        //     MethodCallExpression whereCallExpression = Expression.Call( 
+        //                                                                typeof (Queryable), 
+        //                                                                "Where", 
+        //                                                                new[] {queryableData.ElementType}, 
+        //                                                                queryableData.Expression, 
+        //                                                                Expression.Lambda<Func<string, bool>>(equal, new[] {pe})); 
+        //     // ***** End Where ***** 
+        //     IQueryable<string> resulList = queryableData.Provider.CreateQuery<string>(whereCallExpression); 
+        //     resulList.Dump();
+        //     Console.WriteLine ("........................ ");
+        //     foreach (string company in resulList)
+        //     {
+        //         Console.WriteLine (company);
+        //     }
+        //     Console.WriteLine (",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,");
+        //     return; 
+        // }
     }
 
 }
