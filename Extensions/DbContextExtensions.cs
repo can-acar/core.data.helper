@@ -8,11 +8,20 @@ namespace core.data.helper.extensions
 #pragma warning disable CS8603
     public static class DbContextExtensions
     {
-        public static DbContext GetObjectContext(this IDbContext dbContext) => dbContext as DbContext;
+        public static DbContext GetObjectContext(this IDbContext dbContext)
+        {
+            return dbContext as DbContext;
+        }
 
-        public static IDbContextTransaction BeginTransaction(this IDbContext dbContext) => dbContext.Database.BeginTransaction();
+        public static IDbContextTransaction BeginTransaction(this IDbContext dbContext)
+        {
+            return dbContext.Database.BeginTransaction();
+        }
 
-        public static IDbContextTransaction BeginTransaction(this IDbContext dbContext, IsolationLevel isolationLevel) => dbContext.Database.BeginTransaction(isolationLevel);
+        public static IDbContextTransaction BeginTransaction(this IDbContext dbContext, IsolationLevel isolationLevel)
+        {
+            return dbContext.Database.BeginTransaction(isolationLevel);
+        }
     }
 
     public static class ContextExtensions

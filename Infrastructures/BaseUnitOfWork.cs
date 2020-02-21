@@ -20,12 +20,13 @@ namespace core.data.helper.infrastructures
         /// <param name="contextAdaptor"></param>
         protected BaseUnitOfWork(IContextAdaptor<TContext> contextAdaptor)
         {
-            this.ContextAdaptor = contextAdaptor;
+            ContextAdaptor = contextAdaptor;
         }
 
         protected bool LazyLoadingEnabled
         {
-            set => (Context as DbContext).ChangeTracker.LazyLoadingEnabled = value; //DbContext().ChangeTracker.LazyLoadingEnabled = value;
+            set => (Context as DbContext).ChangeTracker.LazyLoadingEnabled =
+                value; //DbContext().ChangeTracker.LazyLoadingEnabled = value;
             get => (Context as DbContext).ChangeTracker.LazyLoadingEnabled;
         }
 
