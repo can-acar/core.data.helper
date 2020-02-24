@@ -13,7 +13,7 @@ namespace core.data.helper.extensions
 
     public static class QueryableExtensions
     {
-        public static ProjectionExpression<TSource> Project<TSource>(this IQueryable<TSource> source) { return new ProjectionExpression<TSource>(source); }
+        public static ProjectionExpression<TSource> Project<TSource>(this IQueryable<TSource> source) => new ProjectionExpression<TSource>(source);
 
         public static IQueryable<TResult> Select<TEntity, TResult>(this IRepository<TEntity> source, Expression<Func<TEntity, TResult>> query) where TEntity : class =>
             source.Entity.Select(query).AsQueryable();
@@ -99,7 +99,7 @@ namespace core.data.helper.extensions
 
         public static IQueryable<T> Select<T>(this IQueryable<T> source, string columnName)
         {
-            if (String.IsNullOrEmpty(columnName)) { return source; }
+            if (string.IsNullOrEmpty(columnName)) { return source; }
 
             var Parameter = Expression.Parameter(source.ElementType, "");
             var Property  = Expression.Property(Parameter, columnName);
@@ -138,9 +138,7 @@ namespace core.data.helper.extensions
             public static LambdaExpression Get(string propertyName) => Cache.TryGetValue(propertyName, out var Result) ? Result : null;
         }
 
-        public static IQueryable<T> Filter<T>(this IQueryable<T> source,
-                                              string propertyName,
-                                              object propertyValue) where T : class
+        public static IQueryable<T> Filter<T>(this IQueryable<T> source, string propertyName, object propertyValue) where T : class
         {
             var Param       = Expression.Parameter(typeof(T), typeof(T).Name.ToLower());
             var Property    = Expression.Property(Param, propertyName);
@@ -162,10 +160,7 @@ namespace core.data.helper.extensions
             return source.Where(Expression.Lambda<Func<T, bool>>(Expr, Param)).AsQueryable();
         }
 
-        public static IQueryable<T> Where<T>(this IQueryable<T> source,
-                                             string propertyName,
-                                             object propertyValue,
-                                             out bool success) where T : class
+        public static IQueryable<T> Where<T>(this IQueryable<T> source, string propertyName, object propertyValue, out bool success) where T : class
         {
             success = false;
             var Mba = PropertyAccessorCache<T>.Get(propertyName);
@@ -215,12 +210,6 @@ namespace core.data.helper.extensions
             return source.Provider.CreateQuery<T>(MethodCallExpression).AsQueryable();
         }
 
-        /// <summary>
-        /// TODO
-        /// </summary>
-        /// <param name="source"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public static IQueryable<T> SortBy<T>(this IQueryable<T> source, IEnumerable<string> columnNames)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));

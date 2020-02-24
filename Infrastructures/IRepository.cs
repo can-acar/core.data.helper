@@ -8,10 +8,9 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace core.data.helper.infrastructures
 {
-    public interface IRepository<TEntity> where TEntity:class
 
+    public interface IRepository<TEntity> where TEntity : class
     {
-        //DbSet<TEntity> DbSet { get; set; }
 
         DbSet<TEntity> Entity { get; set; }
 
@@ -21,8 +20,6 @@ namespace core.data.helper.infrastructures
         int Count(params Expression<Func<TEntity, object>>[] includeProperties);
 
         Task<int> CountAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties);
-
-        Task<int> CountAsync(params Expression<Func<TEntity, object>>[] includeProperties);
 
         IQueryable<TEntity> AsQueryable();
 
@@ -67,7 +64,7 @@ namespace core.data.helper.infrastructures
         IQueryable<TEntity> Pagination(int currentPage, int limit, out int rowsCount, params Expression<Func<TEntity, object>>[] includeProperties);
 
         Task<IQueryable<TEntity>> PaginationAsync(int currentPage, int limit, Func<int, int> rowsCount,
-            params Expression<Func<TEntity, object>>[] includeProperties);
+                                                  params Expression<Func<TEntity, object>>[] includeProperties);
 
         IQueryable<TEntity> AsNoTracking();
 
@@ -104,4 +101,5 @@ namespace core.data.helper.infrastructures
 
         Task InsertArrayAsync(ICollection<TEntity> entities);
     }
+
 }
