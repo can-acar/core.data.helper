@@ -1,6 +1,5 @@
 namespace core.data.helper.infrastructures
 {
-
     public interface ICache
     {
         void Clear();
@@ -8,16 +7,24 @@ namespace core.data.helper.infrastructures
         void Remove(string key);
         void Store(string key, object value, int minutesValidFor);
     }
-    #pragma warning disable CS8603
+#pragma warning disable CS8603
     public class NullCache : ICache
     {
-        public void Clear() { }
+        public void Clear()
+        {
+        }
 
-        public object Get(string key) { return null; }
+        public object Get(string key)
+        {
+            return null;
+        }
 
-        public void Remove(string key) { }
+        public void Remove(string key)
+        {
+        }
 
-        public void Store(string key, object value, int minutesValidFor) { }
+        public void Store(string key, object value, int minutesValidFor)
+        {
+        }
     }
-
 }

@@ -8,46 +8,58 @@ using core.data.helper.infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 
+
 namespace core.data.helper.extensions
 {
-
     public static class QueryableExtensions
     {
         public static ProjectionExpression<TSource> Project<TSource>(this IQueryable<TSource> source) => new ProjectionExpression<TSource>(source);
 
-        public static IQueryable<TResult> Select<TEntity, TResult>(this IRepository<TEntity> source, Expression<Func<TEntity, TResult>> query) where TEntity : class =>
-            source.Entity.Select(query).AsQueryable();
+        public static IQueryable<TResult> Select<TEntity, TResult>(this IRepository<TEntity> source,
+                                                                   Expression<Func<TEntity, TResult>> query) where TEntity : class
+        {
+            return source.Entity.Select(query)
+                         .AsQueryable();
+        }
 
         public static IQueryable<TEntity> Include<TEntity, TProperty>(this IRepository<TEntity> source,
                                                                       params Expression<Func<TEntity, TProperty>>[] navigationPropertyPath)
         where TEntity : class
         {
-            return navigationPropertyPath.Aggregate<Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(source.Entity,
+            return navigationPropertyPath.Aggregate<Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(
+                                                                                                               source.Entity,
                                                                                                                (entities, expression) => entities.Include(expression));
         }
 
         public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(this IRepository<TEntity> source,
                                                                                            Expression<Func<TEntity, TProperty>> navigationPropertyPath)
-        where TEntity : class =>
-            source.Entity.Include(navigationPropertyPath);
+        where TEntity : class
+        {
+            return source.Entity.Include(navigationPropertyPath);
+        }
 
-        public static IQueryable<TResult> InnerJoin<TSource, TInner, TKey, TResult>(this IRepository<TSource> source, IRepository<TInner> other, Func<TSource, TKey> func,
+        public static IQueryable<TResult> InnerJoin<TSource, TInner, TKey, TResult>(this IRepository<TSource> source,
+                                                                                    IRepository<TInner> other, Func<TSource, TKey> func,
                                                                                     Func<TInner, TKey> innerkey,
-                                                                                    Func<TSource, TInner, TResult> res) where TSource : class where TInner : class =>
-            from F in source.AsQueryable()
-            join B in other.AsQueryable() on func.Invoke(F) equals innerkey.Invoke(B) into G
-            from Result in G
-            select res.Invoke(F, Result);
+                                                                                    Func<TSource, TInner, TResult> res) where TSource : class where TInner : class
+        {
+            return from F in source.AsQueryable()
+                   join B in other.AsQueryable() on func.Invoke(F) equals innerkey.Invoke(B) into G
+                   from Result in G
+                   select res.Invoke(F, Result);
+        }
 
         public static IQueryable<TResult> LeftOuterJoin<TSource, TInner, TKey, TResult>(this IRepository<TSource> source,
                                                                                         IRepository<TInner> other,
                                                                                         Func<TSource, TKey> func,
                                                                                         Func<TInner, TKey> innerkey,
-                                                                                        Func<TSource, TInner, TResult> res) where TSource : class where TInner : class =>
-            from F in source.AsQueryable()
-            join B in other.AsQueryable() on func.Invoke(F) equals innerkey.Invoke(B) into G
-            from Result in G.DefaultIfEmpty()
-            select res.Invoke(F, Result);
+                                                                                        Func<TSource, TInner, TResult> res) where TSource : class where TInner : class
+        {
+            return from F in source.AsQueryable()
+                   join B in other.AsQueryable() on func.Invoke(F) equals innerkey.Invoke(B) into G
+                   from Result in G.DefaultIfEmpty()
+                   select res.Invoke(F, Result);
+        }
 
         public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer,
                                                                                   IRepository<TInner> inner,
@@ -57,13 +69,16 @@ namespace core.data.helper.extensions
                                                                                       resultSelector,
                                                                                   IEqualityComparer<TKey> comparer) where TOuter : class where TInner : class
         {
-            return outer.AsQueryable().AsEnumerable().GroupJoin(inner.AsQueryable(),
-                                                                outerKeySelector,
-                                                                innerKeySelector,
-                                                                (o, ei) => ei
-                                                                           .Select(i => resultSelector(o, i))
-                                                                           .DefaultIfEmpty(resultSelector(o, default)), comparer)
-                        .SelectMany(oi => oi).AsQueryable();
+            return outer.AsQueryable()
+                        .AsEnumerable()
+                        .GroupJoin(inner.AsQueryable(),
+                                   outerKeySelector,
+                                   innerKeySelector,
+                                   (o, ei) => ei
+                                              .Select(i => resultSelector(o, i))
+                                              .DefaultIfEmpty(resultSelector(o, default)), comparer)
+                        .SelectMany(oi => oi)
+                        .AsQueryable();
         }
 
         public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer,
@@ -71,8 +86,10 @@ namespace core.data.helper.extensions
                                                                                   Func<TOuter, TKey> outerKeySelector,
                                                                                   Func<TInner, TKey> innerKeySelector,
                                                                                   Func<TOuter, TInner, TResult>
-                                                                                      resultSelector) where TInner : class where TOuter : class =>
-            outer.LeftJoin(inner, outerKeySelector, innerKeySelector, resultSelector, default);
+                                                                                      resultSelector) where TInner : class where TOuter : class
+        {
+            return outer.LeftJoin(inner, outerKeySelector, innerKeySelector, resultSelector, default);
+        }
 
         public static IQueryable<TEntity> Pagination<TEntity>(this IRepository<TEntity> source, int currentPage,
                                                               int limit, out int rowCount) where TEntity : class
@@ -84,12 +101,15 @@ namespace core.data.helper.extensions
                          .Take(limit);
         }
 
-        public static async Task<TEntity[]> PaginationAsync<TEntity>(this IQueryable<TEntity> source, int currentPage,
-                                                                     int limit) where TEntity : class =>
-            await source
-                  .Skip((currentPage - 1) * limit)
-                  .Take(limit)
-                  .ToArrayAsync();
+        public static async Task<TEntity[]> PaginationAsync<TEntity>(this IQueryable<TEntity> source,
+                                                                     int currentPage,
+                                                                     int limit) where TEntity : class
+        {
+            return await source
+                         .Skip((currentPage - 1) * limit)
+                         .Take(limit)
+                         .ToArrayAsync();
+        }
 
         public static Task<IQueryable<TSource>> WhereAsync<TSource>(this IQueryable<TSource> source,
                                                                     Expression<Func<TSource, bool>> predicate) where TSource : class
@@ -101,7 +121,7 @@ namespace core.data.helper.extensions
         {
             if (string.IsNullOrEmpty(columnName)) { return source; }
 
-            var Parameter = Expression.Parameter(source.ElementType, "");
+            var Parameter = Expression.Parameter(source.ElementType, "p");
             var Property  = Expression.Property(Parameter, columnName);
             var Lambda    = Expression.Lambda(Property, Parameter);
 
@@ -112,7 +132,8 @@ namespace core.data.helper.extensions
                                                               new[] {source.ElementType, Property.Type},
                                                               source.Expression, Expression.Quote(Lambda));
 
-            return source.Provider.CreateQuery<T>(MethodCallExpression).AsQueryable();
+            return source.Provider.CreateQuery<T>(MethodCallExpression)
+                         .AsQueryable();
         }
 
         private static class PropertyAccessorCache<T> where T : class
@@ -125,6 +146,7 @@ namespace core.data.helper.extensions
 
                 var T         = typeof(T);
                 var Parameter = Expression.Parameter(T, "p");
+
                 foreach (var Property in T.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                 {
                     var PropertyAccess   = Expression.MakeMemberAccess(Parameter, Property);
@@ -135,7 +157,12 @@ namespace core.data.helper.extensions
                 Cache = Storage;
             }
 
-            public static LambdaExpression Get(string propertyName) => Cache.TryGetValue(propertyName, out var Result) ? Result : null;
+            public static LambdaExpression Get(string propertyName)
+            {
+                return Cache.TryGetValue(propertyName, out var Result)
+                    ? Result
+                    : null;
+            }
         }
 
         public static IQueryable<T> Filter<T>(this IQueryable<T> source, string propertyName, object propertyValue) where T : class
@@ -146,6 +173,7 @@ namespace core.data.helper.extensions
 
 
             Expression MatchExpression = Property;
+
             if (MatchExpression.Type != typeof(string))
             {
                 MatchExpression = Expression.Convert(MatchExpression, typeof(object));
@@ -153,48 +181,53 @@ namespace core.data.helper.extensions
             }
 
             var Pattern = Expression.Constant($"%{SearchValue}%");
-            var Expr = Expression.Call(
-                                       typeof(DbFunctionsExtensions), "Like", Type.EmptyTypes,
+
+            var Expr = Expression.Call(typeof(DbFunctionsExtensions), "Like", Type.EmptyTypes,
                                        Expression.Constant(EF.Functions), MatchExpression, Pattern);
 
-            return source.Where(Expression.Lambda<Func<T, bool>>(Expr, Param)).AsQueryable();
+            return source.Where(Expression.Lambda<Func<T, bool>>(Expr, Param))
+                         .AsQueryable();
         }
 
         public static IQueryable<T> Where<T>(this IQueryable<T> source, string propertyName, object propertyValue, out bool success) where T : class
         {
             success = false;
             var Mba = PropertyAccessorCache<T>.Get(propertyName);
-            if (Mba == null) return source;
+
+            if (Mba == null)
+                return source;
 
 
             object Value;
+
             try { Value = Convert.ChangeType(propertyValue, Mba.ReturnType); }
-            catch (SystemException Ex) when (
-                Ex is InvalidCastException ||
-                Ex is FormatException ||
-                Ex is OverflowException ||
-                Ex is ArgumentNullException) { return source; }
+            catch (SystemException Ex) when (Ex is InvalidCastException ||
+                                             Ex is FormatException ||
+                                             Ex is OverflowException ||
+                                             Ex is ArgumentNullException) { return source; }
 
 
-            var Eqe = System.Linq.Expressions.Expression.Equal(
-                                                               Mba.Body,
-                                                               System.Linq.Expressions.Expression.Constant(Value, Mba.ReturnType));
-            var Expression = System.Linq.Expressions.Expression.Lambda(Eqe, Mba.Parameters[0]);
+            var Eqe = Expression.Equal(Mba.Body, Expression.Constant(Value, Mba.ReturnType));
+
+            var QueryExpr = Expression.Lambda(Eqe, Mba.Parameters[0]);
 
 
             success = true;
-            var ResultExpression = System.Linq.Expressions.Expression.Call(
-                                                                           null,
-                                                                           GetMethodInfo<IQueryable<T>, Expression<Func<T, bool>>, IQueryable<T>>(Queryable.Where),
-                                                                           new[] {source.Expression, System.Linq.Expressions.Expression.Quote(Expression)});
+
+            var ResultExpression = Expression.Call(null,
+                                                   GetMethodInfo<IQueryable<T>,
+                                                       Expression<Func<T, bool>>,
+                                                       IQueryable<T>>(Queryable.Where),
+                                                   new[] {source.Expression, Expression.Quote(QueryExpr)});
+
             return source.Provider.CreateQuery<T>(ResultExpression);
         }
 
-        private static MethodInfo GetMethodInfo<T1, T2, T3>(Func<T1, T2, T3> f) => f.Method;
+        private static MethodInfo GetMethodInfo<T1, T2, T3>(Func<T1, T2, T3> f) { return f.Method; }
 
         public static IQueryable<T> SortBy<T>(this IQueryable<T> source, string columnName)
         {
-            if (String.IsNullOrEmpty(columnName)) { return source; }
+            if (string.IsNullOrEmpty(columnName)) return source;
 
             var Parameter = Expression.Parameter(source.ElementType, "");
             var Property  = Expression.Property(Parameter, columnName);
@@ -207,12 +240,14 @@ namespace core.data.helper.extensions
                                                               new[] {source.ElementType, Property.Type},
                                                               source.Expression, Expression.Quote(Lambda));
 
-            return source.Provider.CreateQuery<T>(MethodCallExpression).AsQueryable();
+            return source.Provider.CreateQuery<T>(MethodCallExpression)
+                         .AsQueryable();
         }
 
         public static IQueryable<T> SortBy<T>(this IQueryable<T> source, IEnumerable<string> columnNames)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
 
             var QueryExpr = source.Expression;
@@ -224,19 +259,23 @@ namespace core.data.helper.extensions
             {
                 var Property = Expression.Property(Parameter, ColumnName);
                 var Lambda   = Expression.Lambda(Property, Parameter);
+
                 QueryExpr = Expression.Call(typeof(Queryable), MethodName,
                                             new[] {source.ElementType, Property.Type},
                                             QueryExpr, Expression.Quote(Lambda));
+
                 MethodName = "ThenBy";
             }
 
 
-            return source.Provider.CreateQuery<T>(QueryExpr).AsQueryable();
+            return source.Provider.CreateQuery<T>(QueryExpr)
+                         .AsQueryable();
         }
 
         public static IQueryable<T> SortBy<T>(this IQueryable<T> source, IList<IDictionary<string, string>> orders)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
 
             var EntityType = source.ElementType;
@@ -244,21 +283,22 @@ namespace core.data.helper.extensions
             var EntityParameter = Expression.Parameter(EntityType, "p");
 
 
-            var    OrderType  = orders[0]["orderType"];
-            string MethodName = OrderType == "asc" ? "OrderBy" : "OrderByDescending";
+            var OrderType = orders[0]["orderType"];
+
+            var MethodName = OrderType == "asc"
+                ? "OrderBy"
+                : "OrderByDescending";
 
 
-            var OrderBy           = orders[0]["orderBy"];
-            var OrderProperty     = EntityType.GetProperty(OrderBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var OrderBy = orders[0]["orderBy"];
+            var OrderProperty = EntityType.GetProperty(OrderBy,
+                                                       BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             var PropertyAccess    = Expression.MakeMemberAccess(EntityParameter, OrderProperty);
             var OrderByExpression = Expression.Lambda(PropertyAccess, EntityParameter);
+
             var ResultExpression = Expression.Call(typeof(Queryable),
                                                    MethodName,
-                                                   new Type[]
-                                                   {
-                                                       EntityType,
-                                                       OrderProperty.PropertyType
-                                                   },
+                                                   new Type[] {EntityType, OrderProperty.PropertyType},
                                                    source.Expression,
                                                    Expression.Quote(OrderByExpression));
 
@@ -266,30 +306,33 @@ namespace core.data.helper.extensions
 
             foreach (var order in Orders)
             {
-                OrderBy           = order["orderBy"];
-                OrderType         = order["orderType"];
-                MethodName        = OrderType == "asc" ? "ThenBy" : "ThenByDescending";
-                OrderProperty     = EntityType.GetProperty(OrderBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                OrderBy   = order["orderBy"];
+                OrderType = order["orderType"];
+
+                MethodName = OrderType == "asc"
+                    ? "ThenBy"
+                    : "ThenByDescending";
+
+                OrderProperty = EntityType.GetProperty(OrderBy,
+                                                       BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                 PropertyAccess    = Expression.MakeMemberAccess(EntityParameter, OrderProperty);
                 OrderByExpression = Expression.Lambda(PropertyAccess, EntityParameter);
+
                 ResultExpression = Expression.Call(typeof(Queryable),
                                                    MethodName,
-                                                   new Type[]
-                                                   {
-                                                       EntityType,
-                                                       OrderProperty.PropertyType
-                                                   },
+                                                   new Type[] {EntityType, OrderProperty.PropertyType},
                                                    ResultExpression,
                                                    Expression.Quote(OrderByExpression));
             }
 
 
-            return source.Provider.CreateQuery<T>(ResultExpression).AsQueryable();
+            return source.Provider.CreateQuery<T>(ResultExpression)
+                         .AsQueryable();
         }
 
         public static IQueryable<T> SortByDescending<T>(this IQueryable<T> source, string columnName)
         {
-            if (String.IsNullOrEmpty(columnName)) { return source; }
+            if (string.IsNullOrEmpty(columnName)) return source;
 
             var Parameter = Expression.Parameter(source.ElementType, "");
 
@@ -302,7 +345,8 @@ namespace core.data.helper.extensions
                                                               new[] {source.ElementType, Property.Type},
                                                               source.Expression, Expression.Quote(Lambda));
 
-            return source.Provider.CreateQuery<T>(MethodCallExpression).AsQueryable();
+            return source.Provider.CreateQuery<T>(MethodCallExpression)
+                         .AsQueryable();
         }
 
         // public void TranslateInto(string[] companies) 
@@ -329,5 +373,4 @@ namespace core.data.helper.extensions
         //     return; 
         // }
     }
-
 }

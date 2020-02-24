@@ -6,14 +6,17 @@ namespace core.data.helper.extensions
 #pragma warning disable CS8603
     public static class ObjectExtensions
     {
-        public static T GetPropertyValue<T>(this object obj, string property) { return(T) obj.GetType().GetProperty(property)?.GetValue(obj, null); }
+        public static T GetPropertyValue<T>(this object obj, string property)
+        {
+            return (T) obj.GetType().GetProperty(property)?.GetValue(obj, null);
+        }
 
         public static T GetPropertyValue<T>(this object obj, Expression<Func<object, object>> property)
         {
             var PropertyName = ExpressionHelper.GetPropertyName(property);
-            return(T) obj.GetType().GetProperty(PropertyName)?.GetValue(obj, null);
+            return (T) obj.GetType().GetProperty(PropertyName)?.GetValue(obj, null);
         }
-        #pragma warning disable CS8603
+#pragma warning disable CS8603
 
         public static string GetPropertyName(this object obj, Expression<Func<object, object>> property)
         {
@@ -29,14 +32,13 @@ namespace core.data.helper.extensions
             var Expr = property.Body;
             var PropertyName = string.Empty;
 
-            if(Expr is UnaryExpression)
+            if (Expr is UnaryExpression)
                 PropertyName =
                     ((MemberExpression)
                         ((UnaryExpression) property.Body).Operand).Member.Name;
-            else if(Expr is MemberExpression) PropertyName = ((MemberExpression) property.Body).Member.Name;
+            else if (Expr is MemberExpression) PropertyName = ((MemberExpression) property.Body).Member.Name;
 
             return PropertyName;
         }
     }
-
 }
