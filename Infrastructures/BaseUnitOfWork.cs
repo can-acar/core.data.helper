@@ -18,15 +18,11 @@ namespace core.data.helper.infrastructures
         /// <summary>
         /// </summary>
         /// <param name="contextAdaptor"></param>
-        protected BaseUnitOfWork(IContextAdaptor<TContext> contextAdaptor)
-        {
-            ContextAdaptor = contextAdaptor;
-        }
+        protected BaseUnitOfWork(IContextAdaptor<TContext> contextAdaptor) { ContextAdaptor = contextAdaptor; }
 
         protected bool LazyLoadingEnabled
         {
-            set => (Context as DbContext).ChangeTracker.LazyLoadingEnabled =
-                value; //DbContext().ChangeTracker.LazyLoadingEnabled = value;
+            set => (Context as DbContext).ChangeTracker.LazyLoadingEnabled = value; //DbContext().ChangeTracker.LazyLoadingEnabled = value;
             get => (Context as DbContext).ChangeTracker.LazyLoadingEnabled;
         }
 
@@ -43,10 +39,7 @@ namespace core.data.helper.infrastructures
             }
         }
 #pragma warning disable CS8603
-        public DbContext DbContext()
-        {
-            return Context as DbContext;
-        }
+        public DbContext DbContext() { return Context as DbContext; }
 
         /// <summary>
         /// </summary>
