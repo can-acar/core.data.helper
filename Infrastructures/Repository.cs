@@ -16,10 +16,7 @@ namespace core.data.helper.infrastructures
 
         private DbContext Context;
 
-        protected BaseRepository(IContextAdaptor<TContext> contextAdaptor)
-        {
-            ContextAdaptor = contextAdaptor;
-        }
+        protected BaseRepository(IContextAdaptor<TContext> contextAdaptor) { ContextAdaptor = contextAdaptor; }
 
         protected DbContext DbContext
         {
@@ -39,7 +36,7 @@ namespace core.data.helper.infrastructures
     {
         protected Repository(IContextAdaptor<TContext> contextAdaptor) : base(contextAdaptor)
         {
-            DbSet = DbContext.Set<TEntity>();
+            DbSet  = DbContext.Set<TEntity>();
             Entity = DbContext.Set<TEntity>();
         }
 
@@ -98,8 +95,7 @@ namespace core.data.helper.infrastructures
         /// </summary>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual Task<IQueryable<TEntity>> AsQueryableAsync(
-            params Expression<Func<TEntity, object>>[] includeProperties)
+        public virtual Task<IQueryable<TEntity>> AsQueryableAsync(params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
                                 .AsQueryable());
@@ -162,7 +158,7 @@ namespace core.data.helper.infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> where,
-            params Expression<Func<TEntity, object>>[] includeProperties)
+                                                           params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
                                 .Where(where));
@@ -216,8 +212,7 @@ namespace core.data.helper.infrastructures
         /// </summary>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual Task<IQueryable<TEntity>> GetAllAsync(
-            params Expression<Func<TEntity, object>>[] includeProperties)
+        public virtual Task<IQueryable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
                                 .AsQueryable());
@@ -281,7 +276,7 @@ namespace core.data.helper.infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> where,
-            params Expression<Func<TEntity, object>>[] includeProperties)
+                                                            params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
                                 .Where(where));
@@ -313,7 +308,7 @@ namespace core.data.helper.infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual IQueryable<TEntity> Pagination(int currentPage, int limit, out int rowsCount,
-            params Expression<Func<TEntity, object>>[] includeProperties)
+                                                      params Expression<Func<TEntity, object>>[] includeProperties)
         {
             rowsCount = PerformInclusions(includeProperties)
                 .Count();
@@ -332,7 +327,7 @@ namespace core.data.helper.infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> PaginationAsync(int currentPage, int limit, Func<int, int> rowsCount,
-            params Expression<Func<TEntity, object>>[] includeProperties)
+                                                                 params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var Count = PerformInclusions(includeProperties)
                 .Count();
@@ -371,12 +366,11 @@ namespace core.data.helper.infrastructures
         /// <param name="match"></param>
         public virtual void Delete(Expression<Func<TEntity, bool>> match)
         {
-            var Items = DbSet.Where(match);
+            var Items = DbSet.Where(match).AsQueryable();
 
             foreach (var Item in Items)
             {
-                if (DbContext.Entry(Item)
-                             .State == EntityState.Detached)
+                if (DbContext.Entry(Item).State == EntityState.Detached)
                     DbSet.Attach(Item);
 
                 DbSet.Remove(Item);
@@ -390,8 +384,7 @@ namespace core.data.helper.infrastructures
         {
             //DbSet = DbContext.Set<TEntity>();
 
-            if (DbContext.Entry(entity)
-                         .State == EntityState.Detached)
+            if (DbContext.Entry(entity).State == EntityState.Detached)
                 DbSet.Attach(entity);
 
             await Task.Run(() => DbSet.Remove(entity));
@@ -400,29 +393,20 @@ namespace core.data.helper.infrastructures
         /// <summary>
         /// </summary>
         /// <param name="entity"></param>
-        public virtual void Insert(TEntity entity)
-        {
-            DbSet.Add(entity);
-        }
+        public virtual void Insert(TEntity entity) { DbSet.Add(entity); }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="entities"></param>
-        public virtual void InsertArray(ICollection<TEntity> entities)
-        {
-            DbSet.AddRange(entities);
-        }
+        public virtual void InsertArray(ICollection<TEntity> entities) { DbSet.AddRange(entities); }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="entities"></param>
         /// <returns></returns>
-        public virtual async Task InsertArrayAsync(ICollection<TEntity> entities)
-        {
-            await Task.Run(() => DbSet.AddRange(entities));
-        }
+        public virtual async Task InsertArrayAsync(ICollection<TEntity> entities) { await Task.Run(() => DbSet.AddRange(entities)); }
 
         /// <summary>
         /// 
@@ -442,7 +426,7 @@ namespace core.data.helper.infrastructures
         {
             // DbSet = DbContext.Set<TEntity>();
             DbContext.Entry(entity)
-                .State = EntityState.Modified;
+                     .State = EntityState.Modified;
 
             DbSet.Update(entity);
         }
@@ -455,7 +439,7 @@ namespace core.data.helper.infrastructures
         {
             // DbSet = DbContext.Set<TEntity>();
             DbContext.Entry(entity)
-                .State = EntityState.Modified;
+                     .State = EntityState.Modified;
 
             await Task.Run(() => DbSet.Update(entity));
         }
@@ -476,7 +460,7 @@ namespace core.data.helper.infrastructures
                 return new TEntity();
 
             DbContext.Entry(entity)
-                .State = EntityState.Modified;
+                     .State = EntityState.Modified;
 
             DbSet.Update(entity);
 
@@ -512,10 +496,7 @@ namespace core.data.helper.infrastructures
         /// <param name="query"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public virtual Task<IEnumerable<TEntity>> SqlQueryAsync(string query, params object[] parameters)
-        {
-            return Task.Run(() => SqlQuery(query, parameters));
-        }
+        public virtual Task<IEnumerable<TEntity>> SqlQueryAsync(string query, params object[] parameters) { return Task.Run(() => SqlQuery(query, parameters)); }
 
         /// <summary>
         /// </summary>
