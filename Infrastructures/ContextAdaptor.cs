@@ -1,6 +1,6 @@
 using System;
 
-namespace core.data.helper.infrastructures
+namespace core.data.helper.Infrastructures
 {
 #pragma warning disable CS8603
     public class ContextAdaptor<TContext> : IContextAdaptor<TContext> where TContext : class, IDbContext, IDisposable

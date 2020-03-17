@@ -2,10 +2,10 @@ using System;
 using System.Data;
 using System.Threading.Tasks;
 using Autofac;
-using core.data.helper.extensions;
+using core.data.helper.Extensions;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace core.data.helper.infrastructures
+namespace core.data.helper.Infrastructures
 {
 #pragma warning disable CS8603
     public class UnitOfWork<TContext> : BaseUnitOfWork<TContext> where TContext : class, IDbContext, IDisposable
