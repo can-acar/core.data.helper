@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace core.data.helper.Infrastructures
+namespace Core.Data.Helper.Infrastructures
 {
 
     public interface IRepository<TEntity> where TEntity : class

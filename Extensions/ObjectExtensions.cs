@@ -1,7 +1,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace core.data.helper.Extensions
+namespace Core.Data.Helper.Extensions
 {
 #pragma warning disable CS8603
     public static class ObjectExtensions

@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace core.data.helper.Extensions
+namespace Core.Data.Helper.Extensions
 {
     public class ProjectionExpression<TSource>
     {

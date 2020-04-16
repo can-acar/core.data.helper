@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace core.data.helper.Infrastructures
+namespace Core.Data.Helper.Infrastructures
 {
     public interface IDbContext : IDisposable
     {

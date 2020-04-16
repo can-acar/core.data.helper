@@ -1,9 +1,9 @@
 using System.Data;
-using core.data.helper.Infrastructures;
+using Core.Data.Helper.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace core.data.helper.Extensions
+namespace Core.Data.Helper.Extensions
 {
 #pragma warning disable CS8603
     public static class DbContextExtensions

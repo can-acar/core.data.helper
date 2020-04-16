@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace core.data.helper.Infrastructures
+namespace Core.Data.Helper.Infrastructures
 {
     /// <summary>
     /// </summary>

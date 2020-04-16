@@ -4,11 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using core.data.helper.Infrastructures;
+using Core.Data.Helper.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 
-namespace core.data.helper.Extensions
+namespace Core.Data.Helper.Extensions
 {
     public static class QueryableExtensions
     {

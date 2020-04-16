@@ -13,6 +13,8 @@
         <RepositoryUrl>https://github.com/51tharea</RepositoryUrl>
         <IsPackable>false</IsPackable>
         <Nullable>disable</Nullable>
+        <AssemblyName>Core.Data.Helper</AssemblyName>
+        <RootNamespace>Core.Data.Helper</RootNamespace>
 
     </PropertyGroup>
     <ItemGroup>

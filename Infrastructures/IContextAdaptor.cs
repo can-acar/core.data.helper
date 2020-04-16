@@ -1,6 +1,6 @@
 using System;
 
-namespace core.data.helper.Infrastructures
+namespace Core.Data.Helper.Infrastructures
 {
     public interface IContextAdaptor<out TContext> : IDisposable where TContext : IDisposable
     {

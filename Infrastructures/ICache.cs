@@ -1,4 +1,4 @@
-namespace core.data.helper.Infrastructures
+namespace Core.Data.Helper.Infrastructures
 {
     public interface ICache
     {
