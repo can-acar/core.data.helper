@@ -18,7 +18,10 @@ namespace Core.Data.Helper.Infrastructures
         /// <summary>
         /// </summary>
         /// <param name="contextAdaptor"></param>
-        protected BaseUnitOfWork(IContextAdaptor<TContext> contextAdaptor) { ContextAdaptor = contextAdaptor; }
+        protected BaseUnitOfWork(IContextAdaptor<TContext> contextAdaptor)
+        {
+            ContextAdaptor = contextAdaptor;
+        }
 
         protected bool LazyLoadingEnabled
         {
@@ -39,7 +42,10 @@ namespace Core.Data.Helper.Infrastructures
             }
         }
 #pragma warning disable CS8603
-        public DbContext DbContext() { return Context as DbContext; }
+        public DbContext DbContext()
+        {
+            return Context as DbContext;
+        }
 
         /// <summary>
         /// </summary>
