@@ -125,9 +125,9 @@ namespace Core.Data.Helper.Extensions
             var Lambda    = Expression.Lambda(Property, Parameter);
 
             //string methodName = isAscending ? "OrderBy" : "OrderByDescending";  
-            const string MethodName = "Select"; // : "OrderByDescending";  
+            const string methodName = "Select"; // : "OrderByDescending";  
 
-            Expression MethodCallExpression = Expression.Call(typeof(Queryable), MethodName,
+            Expression MethodCallExpression = Expression.Call(typeof(Queryable), methodName,
                                                               new[] {source.ElementType, Property.Type},
                                                               source.Expression, Expression.Quote(Lambda));
 
@@ -297,16 +297,16 @@ namespace Core.Data.Helper.Extensions
 
             var ResultExpression = Expression.Call(typeof(Queryable),
                                                    MethodName,
-                                                   new Type[] {EntityType, OrderProperty.PropertyType},
+                                                   new[] {EntityType, OrderProperty.PropertyType},
                                                    source.Expression,
                                                    Expression.Quote(OrderByExpression));
 
             var Orders = orders.TakeLast(orders.Count - 1);
 
-            foreach (var order in Orders)
+            foreach (var Order in Orders)
             {
-                OrderBy   = order["orderBy"];
-                OrderType = order["orderType"];
+                OrderBy   = Order["orderBy"];
+                OrderType = Order["orderType"];
 
                 MethodName = OrderType == "asc"
                     ? "ThenBy"
@@ -319,7 +319,7 @@ namespace Core.Data.Helper.Extensions
 
                 ResultExpression = Expression.Call(typeof(Queryable),
                                                    MethodName,
-                                                   new Type[] {EntityType, OrderProperty.PropertyType},
+                                                   new[] {EntityType, OrderProperty.PropertyType},
                                                    ResultExpression,
                                                    Expression.Quote(OrderByExpression));
             }
