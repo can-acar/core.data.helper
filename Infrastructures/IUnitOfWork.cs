@@ -6,6 +6,11 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Core.Data.Helper.Infrastructures
 {
+    public interface IUnitOfWork<out TContext> : IUnitOfWork where TContext : DbContext
+    {
+        protected TContext DbContext { get; }
+    }
+
     public interface IUnitOfWork : IDisposable
     {
         IDbContextTransaction BeginTransaction();
@@ -21,7 +26,5 @@ namespace Core.Data.Helper.Infrastructures
         Task<int> SaveChangesAsync();
 
         void Commit();
-
-        DbContext DbContext();
     }
 }

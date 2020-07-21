@@ -1,15 +1,14 @@
 using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace Core.Data.Helper.Infrastructures
 {
 #pragma warning disable CS8603
-    public class ContextAdaptor<TContext> : IContextAdaptor<TContext> where TContext : class, IDbContext, IDisposable
+    public class ContextAdaptor<TContext> : IContextAdaptor<TContext> where TContext : DbContext, IDisposable
     {
-        private readonly TContext DataContext;
-
         public ContextAdaptor(TContext context)
         {
-            DataContext = context;
+            DbContext = context;
         }
 
         public ContextAdaptor()
@@ -18,12 +17,14 @@ namespace Core.Data.Helper.Infrastructures
 
         public TContext GetContext()
         {
-            return DataContext;
+            return DbContext;
         }
+
+        public TContext DbContext { get; }
 
         public void Dispose()
         {
-            DataContext?.Dispose();
+            DbContext?.Dispose();
         }
     }
 }

@@ -8,5 +8,7 @@ namespace Core.Data.Helper.Infrastructures
         /// </summary>
         /// <returns></returns>
         TContext GetContext();
+
+        TContext DbContext { get; }
     }
 }

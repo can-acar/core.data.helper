@@ -8,15 +8,17 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Core.Data.Helper.Infrastructures
 {
-
-    #pragma warning disable CS8603
+#pragma warning disable CS8603
     public abstract class BaseRepository<TContext> where TContext : class, IDisposable
     {
         private readonly IContextAdaptor<TContext> ContextAdaptor;
 
         private DbContext Context;
 
-        protected BaseRepository(IContextAdaptor<TContext> contextAdaptor) { ContextAdaptor = contextAdaptor; }
+        protected BaseRepository(IContextAdaptor<TContext> contextAdaptor)
+        {
+            ContextAdaptor = contextAdaptor;
+        }
 
         protected DbContext DbContext
         {
@@ -30,9 +32,9 @@ namespace Core.Data.Helper.Infrastructures
         }
     }
 
-    public abstract class Repository<TEntity, TContext> : BaseRepository<TContext>
-    where TEntity : class, new()
-    where TContext : class, IDisposable
+    public abstract class Repository<TEntity, TContext> : BaseRepository<TContext>, IRepository<TEntity>
+        where TEntity : class, new()
+        where TContext : class, IDisposable
     {
         protected Repository(IContextAdaptor<TContext> contextAdaptor) : base(contextAdaptor)
         {
@@ -393,20 +395,29 @@ namespace Core.Data.Helper.Infrastructures
         /// <summary>
         /// </summary>
         /// <param name="entity"></param>
-        public virtual void Insert(TEntity entity) { DbSet.Add(entity); }
+        public virtual void Insert(TEntity entity)
+        {
+            DbSet.Add(entity);
+        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="entities"></param>
-        public virtual void InsertArray(ICollection<TEntity> entities) { DbSet.AddRange(entities); }
+        public virtual void InsertArray(ICollection<TEntity> entities)
+        {
+            DbSet.AddRange(entities);
+        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="entities"></param>
         /// <returns></returns>
-        public virtual async Task InsertArrayAsync(ICollection<TEntity> entities) { await Task.Run(() => DbSet.AddRange(entities)); }
+        public virtual async Task InsertArrayAsync(ICollection<TEntity> entities)
+        {
+            await Task.Run(() => DbSet.AddRange(entities));
+        }
 
         /// <summary>
         /// 
@@ -496,7 +507,10 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="query"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public virtual Task<IEnumerable<TEntity>> SqlQueryAsync(string query, params object[] parameters) { return Task.Run(() => SqlQuery(query, parameters)); }
+        public virtual Task<IEnumerable<TEntity>> SqlQueryAsync(string query, params object[] parameters)
+        {
+            return Task.Run(() => SqlQuery(query, parameters));
+        }
 
         /// <summary>
         /// </summary>
@@ -504,5 +518,4 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="objects"></param>
         public virtual int ExecuteSqlCommand(string query, params object[] objects) => DbContext.Database.ExecuteSqlRaw(query, objects);
     }
-
 }

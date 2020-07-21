@@ -1,21 +1,24 @@
-using System;
 using System.Data;
 using System.Threading.Tasks;
 using Autofac;
-using Core.Data.Helper.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Core.Data.Helper.Infrastructures
 {
 #pragma warning disable CS8603
-    public class UnitOfWork<TContext> : BaseUnitOfWork<TContext> where TContext : class, IDbContext, IDisposable
+    public class UnitOfWork<TContext> : BaseUnitOfWork<TContext>, IUnitOfWork where TContext : DbContext
     {
+        private readonly TContext Context;
         private readonly IComponentContext Scope;
         private IDbContextTransaction ContextTransaction;
 
-        public UnitOfWork(IContextAdaptor<TContext> contextAdaptor, IComponentContext scope) : base(contextAdaptor)
+
+        public UnitOfWork(TContext context, IComponentContext scope) : base(context)
         {
-            Scope = scope;
+            Context = context;
+            Scope   = scope;
         }
 
         /// <inheritdoc />
@@ -24,13 +27,13 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public override IDbContextTransaction BeginTransaction()
         {
-            ContextTransaction = DataContext.Database.BeginTransaction();
+            ContextTransaction = DbContext.Database.BeginTransaction();
             return ContextTransaction;
         }
 
         public override IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
-            ContextTransaction = DataContext.Database.BeginTransaction();
+            ContextTransaction = DbContext.Database.BeginTransaction();
             return ContextTransaction;
         }
 
@@ -45,7 +48,7 @@ namespace Core.Data.Helper.Infrastructures
         /// </summary>
         public override void Rollback()
         {
-            if (DataContext != null) ContextTransaction.Rollback();
+            if (DbContext != null) ContextTransaction.Rollback();
         }
 
         /// <summary>
@@ -53,7 +56,7 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public override int SaveChanges()
         {
-            if (DataContext != null) return DataContext.GetObjectContext().SaveChanges();
+            if (DbContext != null) return DbContext.SaveChanges();
 
             return -1;
         }
@@ -63,14 +66,14 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public override Task<int> SaveChangesAsync()
         {
-            return DataContext != null ? DataContext.GetObjectContext().SaveChangesAsync() : Task.FromResult(-1);
+            return DbContext != null ? DbContext.SaveChangesAsync() : Task.FromResult(-1);
         }
 
         public override IRepository<TEntity> Repository<TEntity>()
         {
-            var Container = Scope.Resolve<IRepository<TEntity>>();
+            var customRepo = Context.GetService<IRepository<TEntity>>(); //.Resolve<IRepository<TEntity>>();
 
-            return Container;
+            return customRepo;
         }
     }
 }

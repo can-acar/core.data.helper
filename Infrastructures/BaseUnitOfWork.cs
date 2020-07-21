@@ -9,40 +9,31 @@ namespace Core.Data.Helper.Infrastructures
     /// <summary>
     /// </summary>
     /// <typeparam name="TContext"></typeparam>
-    public abstract class BaseUnitOfWork<TContext> : IUnitOfWork where TContext : class, IDisposable
+    public abstract class BaseUnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbContext
     {
-        private readonly IContextAdaptor<TContext> ContextAdaptor;
-        private TContext Context;
+        //private readonly IContextAdaptor<TContext> ContextAdaptor;
+        private readonly TContext Context;
         private bool Disposed;
+
+        protected bool LazyLoadingEnabled
+        {
+            set => Context.ChangeTracker.LazyLoadingEnabled = value; //DbContext().ChangeTracker.LazyLoadingEnabled = value;
+            get => Context.ChangeTracker.LazyLoadingEnabled;
+        }
+
+        public TContext DbContext => Context;
 
         /// <summary>
         /// </summary>
         /// <param name="contextAdaptor"></param>
-        protected BaseUnitOfWork(IContextAdaptor<TContext> contextAdaptor)
+        protected BaseUnitOfWork(TContext contextAdaptor)
         {
-            ContextAdaptor = contextAdaptor;
+            Context = contextAdaptor;
         }
 
-        protected bool LazyLoadingEnabled
-        {
-            set => (Context as DbContext).ChangeTracker.LazyLoadingEnabled = value; //DbContext().ChangeTracker.LazyLoadingEnabled = value;
-            get => (Context as DbContext).ChangeTracker.LazyLoadingEnabled;
-        }
 
-        protected TContext DataContext
-        {
-            get
-            {
-                if (Context != null)
-                    return Context;
-
-                Context = ContextAdaptor.GetContext();
-
-                return Context;
-            }
-        }
 #pragma warning disable CS8603
-        public DbContext DbContext()
+        public DbContext CurrentContext()
         {
             return Context as DbContext;
         }
@@ -73,7 +64,7 @@ namespace Core.Data.Helper.Infrastructures
         {
             if (!Disposed)
                 if (disposing)
-                    DataContext.Dispose();
+                    DbContext.Dispose();
 
             Disposed = true;
         }
