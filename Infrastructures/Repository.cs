@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 namespace Core.Data.Helper.Infrastructures
 {
 #pragma warning disable CS8603
-    public abstract class BaseRepository<TEntity> where TEntity : class, IDisposable
+    public abstract class BaseRepository<TEntity> where TEntity : class
     {
         //private readonly IContextAdaptor<TContext> ContextAdaptor;
 
@@ -26,7 +26,7 @@ namespace Core.Data.Helper.Infrastructures
         protected DbContext Context { get; }
     }
 
-    public abstract class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, IDisposable, new()
+    public abstract class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, new()
     //where TContext : class, IDisposable
     {
         // protected Repository(IContextAdaptor<TContext> contextAdaptor) : base(contextAdaptor)
