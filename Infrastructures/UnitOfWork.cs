@@ -1,6 +1,6 @@
+using System;
 using System.Data;
 using System.Threading.Tasks;
-using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -8,23 +8,18 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Core.Data.Helper.Infrastructures
 {
 #pragma warning disable CS8603
-    public class UnitOfWork<TContext> : BaseUnitOfWork<TContext>, IUnitOfWork where TContext : DbContext
+    public class UnitOfWork<TContext> : BaseUnitOfWork<TContext>, IUnitOfWork<TContext>, IUnitOfWork where TContext : DbContext
     {
-        private readonly TContext Context;
-        private readonly IComponentContext Scope;
+        private readonly TContext DbContext;
+
         private IDbContextTransaction ContextTransaction;
 
 
-        public UnitOfWork(TContext context, IComponentContext scope) : base(context)
+        public UnitOfWork(TContext context) : base(context)
         {
-            Context = context;
-            Scope   = scope;
+            DbContext = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        /// <inheritdoc />
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         public override IDbContextTransaction BeginTransaction()
         {
             ContextTransaction = DbContext.Database.BeginTransaction();
@@ -37,23 +32,19 @@ namespace Core.Data.Helper.Infrastructures
             return ContextTransaction;
         }
 
-        /// <summary>
-        /// </summary>
+
         public override void Commit()
         {
             ContextTransaction?.Commit();
         }
 
-        /// <summary>
-        /// </summary>
+
         public override void Rollback()
         {
             if (DbContext != null) ContextTransaction.Rollback();
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
+
         public override int SaveChanges()
         {
             if (DbContext != null) return DbContext.SaveChanges();
@@ -61,9 +52,6 @@ namespace Core.Data.Helper.Infrastructures
             return -1;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         public override Task<int> SaveChangesAsync()
         {
             return DbContext != null ? DbContext.SaveChangesAsync() : Task.FromResult(-1);
@@ -71,7 +59,7 @@ namespace Core.Data.Helper.Infrastructures
 
         public override IRepository<TEntity> Repository<TEntity>()
         {
-            var customRepo = Context.GetService<IRepository<TEntity>>(); //.Resolve<IRepository<TEntity>>();
+            var customRepo = DbContext.GetService<IRepository<TEntity>>(); //.Resolve<IRepository<TEntity>>();
 
             return customRepo;
         }
