@@ -499,7 +499,7 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="query"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public virtual IEnumerable<TEntity> SqlQuery(string query, params object[] parameters) => DbSet.FromSqlRaw(query, parameters);
+        public virtual IQueryable<TEntity> SqlQuery(string query, params object[] parameters) => DbSet.FromSqlRaw(query, parameters);
 
         /// <summary>
         /// 
@@ -507,15 +507,9 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="query"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public virtual Task<IEnumerable<TEntity>> SqlQueryAsync(string query, params object[] parameters)
+        public virtual Task<IQueryable<TEntity>> SqlQueryAsync(string query, params object[] parameters)
         {
-            return Task.Run(() => SqlQuery(query, parameters));
+            return Task.FromResult(DbSet.FromSqlRaw(query, parameters));
         }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="query"></param>
-        /// <param name="objects"></param>
-        public virtual int ExecuteSqlCommand(string query, params object[] objects) => DbContext.Database.ExecuteSqlRaw(query, objects);
     }
 }

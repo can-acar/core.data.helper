@@ -99,9 +99,9 @@ namespace Core.Data.Helper.Infrastructures
 
         EntityEntry<TEntity> Entry(TEntity entity);
 
-        IEnumerable<TEntity> SqlQuery(string query, params object[] parameters);
+        IQueryable<TEntity> SqlQuery(string query, params object[] parameters);
 
-        Task<IEnumerable<TEntity>> SqlQueryAsync(string query, params object[] parameters);
+        Task<IQueryable<TEntity>> SqlQueryAsync(string query, params object[] parameters);
 
         //IEnumerable<T> SqlQuery<T>(string query, params object[] parameters) where T : new();
         //Task<IEnumerable<T>> SqlQueryAsync<T>(string query, params object[] parameters) where T : new();
