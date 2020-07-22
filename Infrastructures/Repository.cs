@@ -9,37 +9,36 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 namespace Core.Data.Helper.Infrastructures
 {
 #pragma warning disable CS8603
-    public abstract class BaseRepository<TContext> where TContext : class, IDisposable
+    public abstract class BaseRepository<TEntity> where TEntity : class, IDisposable
     {
-        private readonly IContextAdaptor<TContext> ContextAdaptor;
+        //private readonly IContextAdaptor<TContext> ContextAdaptor;
 
-        private DbContext Context;
 
-        protected BaseRepository(IContextAdaptor<TContext> contextAdaptor)
+        // protected BaseRepository(IContextAdaptor<TContext> contextAdaptor)
+        // {
+        //     ContextAdaptor = contextAdaptor;
+        // }
+        protected BaseRepository(DbContext context)
         {
-            ContextAdaptor = contextAdaptor;
+            Context = context;
         }
 
-        protected DbContext DbContext
-        {
-            get
-            {
-                if (Context != null)
-                    return Context;
-
-                return Context = ContextAdaptor.GetContext() as DbContext;
-            }
-        }
+        protected DbContext Context { get; }
     }
 
-    public abstract class Repository<TEntity, TContext> : BaseRepository<TContext>, IRepository<TEntity>
-        where TEntity : class, new()
-        where TContext : class, IDisposable
+    public abstract class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, IDisposable, new()
+    //where TContext : class, IDisposable
     {
-        protected Repository(IContextAdaptor<TContext> contextAdaptor) : base(contextAdaptor)
+        // protected Repository(IContextAdaptor<TContext> contextAdaptor) : base(contextAdaptor)
+        // {
+        //     DbSet  = DbContext.Set<TEntity>();
+        //     Entity = DbContext.Set<TEntity>();
+        // }
+
+        protected Repository(DbContext context) : base(context)
         {
-            DbSet  = DbContext.Set<TEntity>();
-            Entity = DbContext.Set<TEntity>();
+            DbSet  = context.Set<TEntity>();
+            Entity = context.Set<TEntity>();
         }
 
         private DbSet<TEntity> DbSet { get; }
@@ -355,8 +354,8 @@ namespace Core.Data.Helper.Infrastructures
         {
             //DbSet = DbContext.Set<TEntity>();
 
-            if (DbContext.Entry(entity)
-                         .State == EntityState.Detached)
+            if (Context.Entry(entity)
+                       .State == EntityState.Detached)
                 DbSet.Attach(entity);
 
             DbSet.Remove(entity);
@@ -372,7 +371,7 @@ namespace Core.Data.Helper.Infrastructures
 
             foreach (var Item in Items)
             {
-                if (DbContext.Entry(Item).State == EntityState.Detached)
+                if (Context.Entry(Item).State == EntityState.Detached)
                     DbSet.Attach(Item);
 
                 DbSet.Remove(Item);
@@ -386,7 +385,7 @@ namespace Core.Data.Helper.Infrastructures
         {
             //DbSet = DbContext.Set<TEntity>();
 
-            if (DbContext.Entry(entity).State == EntityState.Detached)
+            if (Context.Entry(entity).State == EntityState.Detached)
                 DbSet.Attach(entity);
 
             await Task.Run(() => DbSet.Remove(entity));
@@ -436,8 +435,8 @@ namespace Core.Data.Helper.Infrastructures
         public virtual void Update(TEntity entity)
         {
             // DbSet = DbContext.Set<TEntity>();
-            DbContext.Entry(entity)
-                     .State = EntityState.Modified;
+            Context.Entry(entity)
+                   .State = EntityState.Modified;
 
             DbSet.Update(entity);
         }
@@ -449,8 +448,8 @@ namespace Core.Data.Helper.Infrastructures
         public virtual async Task UpdateAsync(TEntity entity)
         {
             // DbSet = DbContext.Set<TEntity>();
-            DbContext.Entry(entity)
-                     .State = EntityState.Modified;
+            Context.Entry(entity)
+                   .State = EntityState.Modified;
 
             await Task.Run(() => DbSet.Update(entity));
         }
@@ -470,8 +469,7 @@ namespace Core.Data.Helper.Infrastructures
             if (Existing == null)
                 return new TEntity();
 
-            DbContext.Entry(entity)
-                     .State = EntityState.Modified;
+            Context.Entry(entity).State = EntityState.Modified;
 
             DbSet.Update(entity);
 
@@ -481,18 +479,18 @@ namespace Core.Data.Helper.Infrastructures
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public int SaveChanges() => DbContext.SaveChanges();
+        public int SaveChanges() => Context.SaveChanges();
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public Task<int> SaveChangesAsync() => DbContext.SaveChangesAsync();
+        public Task<int> SaveChangesAsync() => Context.SaveChangesAsync();
 
         /// <summary>
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public EntityEntry<TEntity> Entry(TEntity entity) => DbContext.Entry(entity);
+        public EntityEntry<TEntity> Entry(TEntity entity) => Context.Entry(entity);
 
         /// <summary>
         /// </summary>
