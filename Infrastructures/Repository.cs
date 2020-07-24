@@ -18,13 +18,13 @@ namespace Core.Data.Helper.Infrastructures
         }
     }
 
-    public abstract class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, new()
+    public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
     //where TContext : class, IDisposable
     {
         private readonly DbContext Context;
 
 
-        protected Repository(DbContext context) : base(context)
+        protected Repository(DbContext context) 
         {
             Context = context;
             DbSet   = context.Set<TEntity>();
