@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 namespace Core.Data.Helper.Infrastructures
 {
 #pragma warning disable CS8603
-    public abstract class BaseRepository<TEntity> where TEntity : class
+    public abstract class BaseRepository<TEntity> where TEntity : class, IDisposable
     {
         private DbContext Context { get; }
         protected BaseRepository(DbContext context)
@@ -18,7 +18,11 @@ namespace Core.Data.Helper.Infrastructures
         }
     }
 
+<<<<<<< HEAD
     public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
+=======
+    public abstract class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, IDisposable, new()
+>>>>>>> parent of 9c4e1fb... 3.0.7
     //where TContext : class, IDisposable
     {
         private readonly DbContext Context;
