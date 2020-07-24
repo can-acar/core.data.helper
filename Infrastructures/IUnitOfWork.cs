@@ -8,7 +8,7 @@ namespace Core.Data.Helper.Infrastructures
 {
     public interface IUnitOfWork<out TContext> : IUnitOfWork where TContext : DbContext
     {
-        protected TContext DbContext { get; }
+        TContext DbContext { get; }
     }
 
     public interface IUnitOfWork : IDisposable

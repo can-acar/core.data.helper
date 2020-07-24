@@ -51,6 +51,7 @@ namespace Core.Data.Helper.Extensions
                    {
                        var ServiceProvider  = componentContext.Resolve<IServiceProvider>();
                        var Configuration    = componentContext.Resolve<IConfiguration>();
+                     
                        var DbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
                        var OptionsBuilder = new DbContextOptionsBuilder<TContext>(DbContextOptions)
                                             .UseApplicationServiceProvider(ServiceProvider)

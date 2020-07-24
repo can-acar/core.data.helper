@@ -11,34 +11,24 @@ namespace Core.Data.Helper.Infrastructures
 #pragma warning disable CS8603
     public abstract class BaseRepository<TEntity> where TEntity : class
     {
-        //private readonly IContextAdaptor<TContext> ContextAdaptor;
-
-
-        // protected BaseRepository(IContextAdaptor<TContext> contextAdaptor)
-        // {
-        //     ContextAdaptor = contextAdaptor;
-        // }
+        private DbContext Context { get; }
         protected BaseRepository(DbContext context)
         {
             Context = context;
         }
-
-        protected DbContext Context { get; }
     }
 
     public abstract class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, new()
     //where TContext : class, IDisposable
     {
-        // protected Repository(IContextAdaptor<TContext> contextAdaptor) : base(contextAdaptor)
-        // {
-        //     DbSet  = DbContext.Set<TEntity>();
-        //     Entity = DbContext.Set<TEntity>();
-        // }
+        private readonly DbContext Context;
+
 
         protected Repository(DbContext context) : base(context)
         {
-            DbSet  = context.Set<TEntity>();
-            Entity = context.Set<TEntity>();
+            Context = context;
+            DbSet   = context.Set<TEntity>();
+            Entity  = context.Set<TEntity>();
         }
 
         private DbSet<TEntity> DbSet { get; }
