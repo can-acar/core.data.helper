@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Core.Data.Helper.Infrastructures
 {
-    public interface IUnitOfWork<out TContext> : IUnitOfWork where TContext : DbContext
+    public interface IUnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
     {
         TContext DbContext { get; }
     }

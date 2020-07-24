@@ -8,36 +8,22 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Core.Data.Helper.Infrastructures
 {
-#pragma warning disable CS8603
-    public abstract class BaseRepository<TEntity> where TEntity : class, IDisposable
-    {
-        private DbContext Context { get; }
-        protected BaseRepository(DbContext context)
-        {
-            Context = context;
-        }
-    }
-
-<<<<<<< HEAD
-    public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
-=======
-    public abstract class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, IDisposable, new()
->>>>>>> parent of 9c4e1fb... 3.0.7
+    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
     //where TContext : class, IDisposable
     {
         private readonly DbContext Context;
 
+        private readonly DbSet<TEntity> DbSet;
 
-        protected Repository(DbContext context) 
+        public DbSet<TEntity> Entity { get; set; }
+
+        public Repository(DbContext context)
         {
             Context = context;
             DbSet   = context.Set<TEntity>();
             Entity  = context.Set<TEntity>();
         }
 
-        private DbSet<TEntity> DbSet { get; }
-
-        public DbSet<TEntity> Entity { get; set; }
 
         protected virtual IEnumerator<TEntity> GetEnumerator() =>
             DbSet.AsEnumerable()
@@ -51,20 +37,6 @@ namespace Core.Data.Helper.Infrastructures
         {
             return includeProperties.Aggregate<Expression<Func<TEntity, object>>, IQueryable<TEntity>>(DbSet, (current, includeProperty) => current.Include(includeProperty));
         }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="includeProperties"></param>
-        ///// <returns></returns>
-        //public IQueryable<TEntity> Include(params Expression<Func<TEntity, object>>[] includeProperties)
-        //{
-        //    return includeProperties.Aggregate<Expression<Func<TEntity, object>>, IQueryable<TEntity>>(DbSet, (current, includeProperty) => current.Include(includeProperty));
-        //}
-        ////public IIncludableQueryable<TEntity, TEntity> Include(Expression<Func<TEntity, TEntity>> includeProperties) 
-        ////{
-        ////    return DbSet.Include(includeProperties);
-        ////}
 
         /// <summary>
         /// </summary>
