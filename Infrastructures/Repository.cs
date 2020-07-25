@@ -11,13 +11,8 @@ namespace Core.Data.Helper.Infrastructures
 #pragma warning disable CS8603
     public abstract class BaseRepository<TEntity> where TEntity : class
     {
-        //private readonly IContextAdaptor<TContext> ContextAdaptor;
+        public abstract DbSet<TEntity> Entity { get; set; }
 
-
-        // protected BaseRepository(IContextAdaptor<TContext> context)
-        // {
-        //     ContextAdaptor = context;
-        // }
         protected BaseRepository(DbContext context)
         {
             Context = context;
@@ -29,25 +24,20 @@ namespace Core.Data.Helper.Infrastructures
     public class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, new()
     //where TContext : class, IDisposable
     {
-        // protected Repository(IContextAdaptor<TContext> context) : base(context)
-        // {
-        //     DbSet  = DbContext.Set<TEntity>();
-        //     Entity = DbContext.Set<TEntity>();
-        // }
+        private readonly DbSet<TEntity> DbSet;
+
+        public override DbSet<TEntity> Entity { get; set; }
 
         protected Repository(DbContext context) : base(context)
         {
-            DbSet  = context.Set<TEntity>();
+            DbSet = context.Set<TEntity>();
             Entity = context.Set<TEntity>();
         }
 
-        private DbSet<TEntity> DbSet { get; }
-
-        public DbSet<TEntity> Entity { get; set; }
 
         protected virtual IEnumerator<TEntity> GetEnumerator() =>
             DbSet.AsEnumerable()
-                 .GetEnumerator();
+                .GetEnumerator();
 
         /// <summary>
         /// </summary>
@@ -99,7 +89,7 @@ namespace Core.Data.Helper.Infrastructures
         public virtual Task<IQueryable<TEntity>> AsQueryableAsync(params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
-                                .AsQueryable());
+                .AsQueryable());
         }
 
         /// <summary>
@@ -136,6 +126,7 @@ namespace Core.Data.Helper.Infrastructures
             PerformInclusions(includeProperties)
                 .CountAsync();
 
+
         /// <summary>
         /// </summary>
         /// <param name="includeProperties"></param>
@@ -159,10 +150,10 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> where,
-                                                           params Expression<Func<TEntity, object>>[] includeProperties)
+            params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
-                                .Where(where));
+                .Where(where));
         }
 
         /// <summary>
@@ -216,7 +207,7 @@ namespace Core.Data.Helper.Infrastructures
         public virtual Task<IQueryable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
-                                .AsQueryable());
+                .AsQueryable());
         }
 
         /// <summary>
@@ -277,10 +268,10 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> where,
-                                                            params Expression<Func<TEntity, object>>[] includeProperties)
+            params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
-                                .Where(where));
+                .Where(where));
         }
 
         /// <summary>
@@ -309,15 +300,15 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual IQueryable<TEntity> Pagination(int currentPage, int limit, out int rowsCount,
-                                                      params Expression<Func<TEntity, object>>[] includeProperties)
+            params Expression<Func<TEntity, object>>[] includeProperties)
         {
             rowsCount = PerformInclusions(includeProperties)
                 .Count();
 
             return PerformInclusions(includeProperties)
-                   .Skip((currentPage - 1) * limit)
-                   .Take(limit)
-                   .AsQueryable();
+                .Skip((currentPage - 1) * limit)
+                .Take(limit)
+                .AsQueryable();
         }
 
         /// <summary>
@@ -328,7 +319,7 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> PaginationAsync(int currentPage, int limit, Func<int, int> rowsCount,
-                                                                 params Expression<Func<TEntity, object>>[] includeProperties)
+            params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var Count = PerformInclusions(includeProperties)
                 .Count();
@@ -336,9 +327,9 @@ namespace Core.Data.Helper.Infrastructures
             rowsCount(Count);
 
             return Task.Run(() => PerformInclusions(includeProperties)
-                                  .Skip((currentPage - 1) * limit)
-                                  .Take(limit)
-                                  .AsQueryable());
+                .Skip((currentPage - 1) * limit)
+                .Take(limit)
+                .AsQueryable());
         }
 
         /// <summary>
@@ -355,7 +346,7 @@ namespace Core.Data.Helper.Infrastructures
             //DbSet = DbContext.Set<TEntity>();
 
             if (Context.Entry(entity)
-                       .State == EntityState.Detached)
+                .State == EntityState.Detached)
                 DbSet.Attach(entity);
 
             DbSet.Remove(entity);
@@ -436,7 +427,7 @@ namespace Core.Data.Helper.Infrastructures
         {
             // DbSet = DbContext.Set<TEntity>();
             Context.Entry(entity)
-                   .State = EntityState.Modified;
+                .State = EntityState.Modified;
 
             DbSet.Update(entity);
         }
@@ -449,7 +440,7 @@ namespace Core.Data.Helper.Infrastructures
         {
             // DbSet = DbContext.Set<TEntity>();
             Context.Entry(entity)
-                   .State = EntityState.Modified;
+                .State = EntityState.Modified;
 
             await Task.Run(() => DbSet.Update(entity));
         }

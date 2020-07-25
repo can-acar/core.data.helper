@@ -34,11 +34,11 @@ namespace Core.Data.Helper.Extensions
         public static IServiceCollection RegisterContext<TContext>(this IServiceCollection services, string connectionStringName) where TContext : DbContext
         {
             var serviceProvider = services.BuildServiceProvider();
-            var configuration   = serviceProvider.GetService<IConfiguration>();
+            var configuration = serviceProvider.GetService<IConfiguration>();
 
             services.AddDbContext<TContext>(options =>
-                                                options.UseSqlServer(configuration.GetConnectionString("DB"))
-                                                       .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug))));
+                options.UseSqlServer(configuration.GetConnectionString("DB"))
+                    .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug))));
             services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
             services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
 
@@ -48,31 +48,30 @@ namespace Core.Data.Helper.Extensions
         public static void RegisterContext<TContext>(this ContainerBuilder builder, string connectionStringName) where TContext : DbContext
         {
             builder.Register(componentContext =>
-                   {
-                       var ServiceProvider  = componentContext.Resolve<IServiceProvider>();
-                       var Configuration    = componentContext.Resolve<IConfiguration>();
-                       var DbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
-                       var OptionsBuilder = new DbContextOptionsBuilder<TContext>(DbContextOptions)
-                                            .UseApplicationServiceProvider(ServiceProvider)
-                                            .UseSqlServer(Configuration.GetConnectionString(connectionStringName))
-                                            // .UseSqlServer(Configuration.GetConnectionString(connectionStringName),
-                                            //               serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null))
-                                            .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)));
+                {
+                    var ServiceProvider = componentContext.Resolve<IServiceProvider>();
+                    var Configuration = componentContext.Resolve<IConfiguration>();
+                    var DbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
+                    var OptionsBuilder = new DbContextOptionsBuilder<TContext>(DbContextOptions)
+                        .UseApplicationServiceProvider(ServiceProvider)
+                        .UseSqlServer(Configuration.GetConnectionString(connectionStringName))
+                        // .UseSqlServer(Configuration.GetConnectionString(connectionStringName),
+                        //               serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null))
+                        .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)));
 
-                       return OptionsBuilder.Options;
-                   }).As<DbContextOptions<TContext>>()
-                   .InstancePerLifetimeScope();
+                    return OptionsBuilder.Options;
+                }).As<DbContextOptions<TContext>>()
+                .InstancePerLifetimeScope();
 
             builder.Register(context => context.Resolve<DbContextOptions<TContext>>())
-                   .As<DbContextOptions>()
-                   .InstancePerLifetimeScope();
+                .As<DbContextOptions>()
+                .InstancePerLifetimeScope();
 
             builder.RegisterType<TContext>()
-                   .AsSelf()
-                   .InstancePerLifetimeScope();
+                .AsSelf()
+                .InstancePerLifetimeScope();
 
-            builder.Register<IUnitOfWork>(x => new UnitOfWork<TContext>(x.Resolve<TContext>()));
-            builder.Register<IUnitOfWork<TContext>>(x => new UnitOfWork<TContext>(x.Resolve<TContext>()));
+            builder.RegisterType<UnitOfWork<TContext>>().As<BaseUnitOfWork<TContext>>().As<IUnitOfWork<TContext>>().As<IUnitOfWork>().InstancePerLifetimeScope();
         }
     }
 
