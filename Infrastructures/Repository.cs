@@ -14,9 +14,9 @@ namespace Core.Data.Helper.Infrastructures
         //private readonly IContextAdaptor<TContext> ContextAdaptor;
 
 
-        // protected BaseRepository(IContextAdaptor<TContext> contextAdaptor)
+        // protected BaseRepository(IContextAdaptor<TContext> context)
         // {
-        //     ContextAdaptor = contextAdaptor;
+        //     ContextAdaptor = context;
         // }
         protected BaseRepository(DbContext context)
         {
@@ -26,10 +26,10 @@ namespace Core.Data.Helper.Infrastructures
         protected DbContext Context { get; }
     }
 
-    public abstract class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, new()
+    public class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, new()
     //where TContext : class, IDisposable
     {
-        // protected Repository(IContextAdaptor<TContext> contextAdaptor) : base(contextAdaptor)
+        // protected Repository(IContextAdaptor<TContext> context) : base(context)
         // {
         //     DbSet  = DbContext.Set<TEntity>();
         //     Entity = DbContext.Set<TEntity>();
