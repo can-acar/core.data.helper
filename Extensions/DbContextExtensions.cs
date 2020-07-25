@@ -71,9 +71,12 @@ namespace Core.Data.Helper.Extensions
             builder.RegisterType<TContext>()
                    .AsSelf()
                    .InstancePerLifetimeScope();
+            
+            builder.RegisterType<UnitOfWork<TContext>>().As<IUnitOfWork<TContext>>().As<IUnitOfWork>().InstancePerLifetimeScope();
 
-            builder.Register<IUnitOfWork>(x => new UnitOfWork<TContext>(x.Resolve<TContext>()));
-            builder.Register<IUnitOfWork<TContext>>(x => new UnitOfWork<TContext>(x.Resolve<TContext>()));
+
+            //builder.Register<IUnitOfWork>(x => new UnitOfWork<TContext>(x.Resolve<TContext>()));
+            //builder.Register<IUnitOfWork<TContext>>(x => new UnitOfWork<TContext>(x.Resolve<TContext>()));
         }
     }
 
