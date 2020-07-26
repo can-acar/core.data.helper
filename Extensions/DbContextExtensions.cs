@@ -58,7 +58,6 @@ namespace Core.Data.Helper.Extensions
                         // .UseSqlServer(Configuration.GetConnectionString(connectionStringName),
                         //               serverOptions => serverOptions.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null))
                         .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)));
-
                     return OptionsBuilder.Options;
                 }).As<DbContextOptions<TContext>>()
                 .InstancePerLifetimeScope();
@@ -68,8 +67,8 @@ namespace Core.Data.Helper.Extensions
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<TContext>()
-                .AsSelf()
-                .InstancePerLifetimeScope();
+                   .AsSelf()
+                   .InstancePerLifetimeScope();
 
             builder.RegisterType<UnitOfWork<TContext>>().As<BaseUnitOfWork<TContext>>().As<IUnitOfWork<TContext>>().As<IUnitOfWork>().InstancePerLifetimeScope();
         }

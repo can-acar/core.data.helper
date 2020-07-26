@@ -8,8 +8,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Core.Data.Helper.Infrastructures
 {
-#pragma warning disable CS8603
-    public abstract class BaseRepository<TEntity> where TEntity : class
+    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
     {
         public abstract DbSet<TEntity> Entity { get; set; }
 
@@ -22,16 +21,17 @@ namespace Core.Data.Helper.Infrastructures
     }
 
     public class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, new()
-    //where TContext : class, IDisposable
     {
         private readonly DbSet<TEntity> DbSet;
 
         public override DbSet<TEntity> Entity { get; set; }
 
-        protected Repository(DbContext context) : base(context)
+        public Repository(DbContext context)
         {
+
             DbSet = context.Set<TEntity>();
             Entity = context.Set<TEntity>();
+
         }
 
 
@@ -47,20 +47,6 @@ namespace Core.Data.Helper.Infrastructures
         {
             return includeProperties.Aggregate<Expression<Func<TEntity, object>>, IQueryable<TEntity>>(DbSet, (current, includeProperty) => current.Include(includeProperty));
         }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="includeProperties"></param>
-        ///// <returns></returns>
-        //public IQueryable<TEntity> Include(params Expression<Func<TEntity, object>>[] includeProperties)
-        //{
-        //    return includeProperties.Aggregate<Expression<Func<TEntity, object>>, IQueryable<TEntity>>(DbSet, (current, includeProperty) => current.Include(includeProperty));
-        //}
-        ////public IIncludableQueryable<TEntity, TEntity> Include(Expression<Func<TEntity, TEntity>> includeProperties) 
-        ////{
-        ////    return DbSet.Include(includeProperties);
-        ////}
 
         /// <summary>
         /// </summary>

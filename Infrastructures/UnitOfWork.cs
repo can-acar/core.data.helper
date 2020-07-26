@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Threading.Tasks;
+using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -8,16 +9,16 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Core.Data.Helper.Infrastructures
 {
 #pragma warning disable CS8603
-    public class UnitOfWork<TContext> : BaseUnitOfWork<TContext>, IUnitOfWork<TContext>, IUnitOfWork where TContext : DbContext
+    public class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork where TContext : DbContext
     {
-        private readonly TContext DbContext;
-
+        private readonly TContext Context;
+        public TContext DbContext => Context;
         private IDbContextTransaction ContextTransaction;
+        private bool Disposed;
 
-
-        public UnitOfWork(TContext context) : base(context)
+        public UnitOfWork(TContext context)
         {
-            DbContext = context ?? throw new ArgumentNullException(nameof(context));
+            Context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
 
@@ -37,42 +38,56 @@ namespace Core.Data.Helper.Infrastructures
             return ContextTransaction;
         }
 
-        public override IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
+        public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             ContextTransaction = DbContext.Database.BeginTransaction();
             return ContextTransaction;
         }
 
+        public IRepository<TEntity> Repository<TEntity>() where TEntity : class
+        {
+            //var customRepo = ComponentContext.Resolve<IRepository<TEntity>>(); //DbContext.GetService<IRepository<TEntity>>(); //.Resolve<IRepository<TEntity>>();
+            var customRepo = DbContext.GetService<IRepository<TEntity>>(); //.Resolve<IRepository<TEntity>>();
 
-        public override void Commit()
+            return customRepo;
+        }
+
+        public void Rollback()
+        {
+            if (Context != null) ContextTransaction.Rollback();
+        }
+
+        public int SaveChanges()
+        {
+            if (Context != null) return Context.SaveChanges();
+
+            return -1;
+        }
+
+        public Task<int> SaveChangesAsync()
+        {
+            return Context != null ? Context.SaveChangesAsync() : Task.FromResult(-1);
+        }
+
+        public void Commit()
         {
             ContextTransaction?.Commit();
         }
 
 
-        public override void Rollback()
+        public void Dispose()
         {
-            if (DbContext != null) ContextTransaction.Rollback();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-
-        public override int SaveChanges()
+        protected virtual void Dispose(bool disposing)
         {
-            if (DbContext != null) return DbContext.SaveChanges();
+            if (!Disposed)
+                if (disposing)
+                    Context.Dispose();
 
-            return -1;
-        }
-
-        public override Task<int> SaveChangesAsync()
-        {
-            return DbContext != null ? DbContext.SaveChangesAsync() : Task.FromResult(-1);
-        }
-
-        public override IRepository<TEntity> Repository<TEntity>()
-        {
-            var customRepo = DbContext.GetService<IRepository<TEntity>>(); //.Resolve<IRepository<TEntity>>();
-
-            return customRepo;
+            Disposed = true;
         }
     }
 }
