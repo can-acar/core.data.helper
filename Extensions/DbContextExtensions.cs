@@ -56,7 +56,7 @@ namespace Core.Data.Helper.Extensions
                         .UseApplicationServiceProvider(ServiceProvider)
                         .UseSqlServer(Configuration.GetConnectionString(connectionStringName))
                         // .UseSqlServer(Configuration.GetConnectionString(connectionStringName),
-                        //               serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null))
+                        //               serverOptions => serverOptions.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null))
                         .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)));
 
                     return OptionsBuilder.Options;

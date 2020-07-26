@@ -20,6 +20,17 @@ namespace Core.Data.Helper.Infrastructures
             DbContext = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+
+        public async Task ExecuteAsync(Func<Task> action)
+        {
+            var Strategy = DbContext.Database.CreateExecutionStrategy();
+            await Strategy.ExecuteAsync(async () =>
+            {
+                action();
+
+            });
+        }
+
         public override IDbContextTransaction BeginTransaction()
         {
             ContextTransaction = DbContext.Database.BeginTransaction();

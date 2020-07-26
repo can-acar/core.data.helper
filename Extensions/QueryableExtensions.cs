@@ -95,9 +95,9 @@ namespace Core.Data.Helper.Extensions
         {
             rowCount = source.Count();
 
-            return source.AsQueryable()
+            return source.Entity
                          .Skip((currentPage - 1) * limit)
-                         .Take(limit);
+                         .Take(limit).AsQueryable();
         }
 
         public static async Task<TEntity[]> PaginationAsync<TEntity>(this IQueryable<TEntity> source,
