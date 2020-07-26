@@ -16,21 +16,6 @@ namespace Core.Data.Helper.Extensions
 #pragma warning disable CS8603
     public static class DbContextExtensions
     {
-        public static DbContext GetObjectContext(this IDbContext dbContext)
-        {
-            return dbContext as DbContext;
-        }
-
-        public static IDbContextTransaction BeginTransaction(this IDbContext dbContext)
-        {
-            return dbContext.Database.BeginTransaction();
-        }
-
-        public static IDbContextTransaction BeginTransaction(this IDbContext dbContext, IsolationLevel isolationLevel)
-        {
-            return dbContext.Database.BeginTransaction(isolationLevel);
-        }
-
         public static IServiceCollection RegisterContext<TContext>(this IServiceCollection services, string connectionStringName) where TContext : DbContext
         {
             var serviceProvider = services.BuildServiceProvider();
@@ -67,11 +52,10 @@ namespace Core.Data.Helper.Extensions
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<TContext>()
-                   .AsSelf()
-                   .InstancePerLifetimeScope();
+                .AsSelf()
+                .InstancePerLifetimeScope();
 
-            builder.RegisterType<UnitOfWork<TContext>>().As<BaseUnitOfWork<TContext>>().As<IUnitOfWork<TContext>>().As<IUnitOfWork>().InstancePerLifetimeScope();
+            builder.RegisterType<UnitOfWork<TContext>>().As<IUnitOfWork<TContext>>().As<IUnitOfWork>().InstancePerLifetimeScope();
         }
     }
-
 }

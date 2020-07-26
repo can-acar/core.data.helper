@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Core.Data.Helper.Infrastructures
 {
 #pragma warning disable CS8603
-    public class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork where TContext : DbContext
+    public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork where TContext : DbContext
     {
         private readonly TContext Context;
         public TContext DbContext => Context;
@@ -27,12 +27,12 @@ namespace Core.Data.Helper.Infrastructures
             var Strategy = DbContext.Database.CreateExecutionStrategy();
             await Strategy.ExecuteAsync(async () =>
             {
-                action();
+                await action();
 
             });
         }
 
-        public override IDbContextTransaction BeginTransaction()
+        public IDbContextTransaction BeginTransaction()
         {
             ContextTransaction = DbContext.Database.BeginTransaction();
             return ContextTransaction;
@@ -46,7 +46,6 @@ namespace Core.Data.Helper.Infrastructures
 
         public IRepository<TEntity> Repository<TEntity>() where TEntity : class
         {
-            //var customRepo = ComponentContext.Resolve<IRepository<TEntity>>(); //DbContext.GetService<IRepository<TEntity>>(); //.Resolve<IRepository<TEntity>>();
             var customRepo = DbContext.GetService<IRepository<TEntity>>(); //.Resolve<IRepository<TEntity>>();
 
             return customRepo;
@@ -81,7 +80,7 @@ namespace Core.Data.Helper.Infrastructures
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!Disposed)
                 if (disposing)
