@@ -75,10 +75,4 @@ namespace Core.Data.Helper.Extensions
         }
     }
 
-    public static class ContextExtensions
-    {
-        //public static TContext GetContext<TContext>(this IDbContext dbContext) where TContext : class, new() => new TContext();
-
-        //public static TContext GetContext<TContext>(this TContext context) where TContext : class, new() => new TContext();
-    }
 }
