@@ -8,30 +8,27 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Core.Data.Helper.Infrastructures
 {
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
+    public abstract class BaseRepository<TEntity>  where TEntity : class
     {
-        public abstract DbSet<TEntity> Entity { get; set; }
-
+        protected DbContext Context { get; }
         protected BaseRepository(DbContext context)
         {
             Context = context;
         }
 
-        protected DbContext Context { get; }
+ 
     }
 
     public class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, new()
     {
         private readonly DbSet<TEntity> DbSet;
 
-        public override DbSet<TEntity> Entity { get; set; }
+        public DbSet<TEntity> Entity { get; set; }
 
-        public Repository(DbContext context)
+        public Repository(DbContext context) : base(context)
         {
-
             DbSet = context.Set<TEntity>();
             Entity = context.Set<TEntity>();
-
         }
 
 
