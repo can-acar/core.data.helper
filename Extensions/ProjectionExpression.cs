@@ -47,8 +47,7 @@ namespace Core.Data.Helper.Extensions
                     BuildBinding(ParameterExpression, destinationProperty, SourceProperties))
                 .Where(binding => binding != null);
 
-            Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), Bindings),
-                ParameterExpression);
+            Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), Bindings), ParameterExpression);
 
             Bindings = PropertyInfos
                 .Select(destinationProperty =>
@@ -66,8 +65,7 @@ namespace Core.Data.Helper.Extensions
             return ExpressionLambda;
         }
 #pragma warning restore CS8603
-        private static MemberAssignment BuildBinding(Expression parameterExpression, MemberInfo destinationProperty,
-            IEnumerable<PropertyInfo> sourceProperties)
+        private static MemberAssignment BuildBinding(Expression parameterExpression, MemberInfo destinationProperty, IEnumerable<PropertyInfo> sourceProperties)
         {
             IEnumerable<PropertyInfo> PropertyInfos = sourceProperties as PropertyInfo[] ?? sourceProperties.ToArray();
 

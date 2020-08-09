@@ -1,7 +1,6 @@
 using System;
 using System.Data;
 using System.Threading.Tasks;
-using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;

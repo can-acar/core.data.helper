@@ -8,15 +8,14 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Core.Data.Helper.Infrastructures
 {
-    public abstract class BaseRepository<TEntity>  where TEntity : class
+    public abstract class BaseRepository<TEntity> where TEntity : class
     {
         protected DbContext Context { get; }
+
         protected BaseRepository(DbContext context)
         {
             Context = context;
         }
-
- 
     }
 
     public class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, new()
@@ -409,10 +408,11 @@ namespace Core.Data.Helper.Infrastructures
         public virtual void Update(TEntity entity)
         {
             // DbSet = DbContext.Set<TEntity>();
-            Context.Entry(entity)
-                .State = EntityState.Modified;
-
-            DbSet.Update(entity);
+            // Context.Entry(entity)
+            //     .State = EntityState.Modified;
+            Context.Attach(entity);
+            //DbSet.Add(entity);
+            // DbSet.Update(entity);
         }
 
         /// <summary>
