@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Core.Data.Helper.Infrastructures
 {
 #pragma warning disable CS8603
-    public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork where TContext : DbContext
+    public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork where TContext : DbContext, IDisposable
     {
         private readonly TContext Context;
         public TContext DbContext => Context;
         private IDbContextTransaction ContextTransaction;
-        private bool Disposed;
+        private bool                  Disposed;
 
         public UnitOfWork(TContext context)
         {
@@ -24,11 +24,7 @@ namespace Core.Data.Helper.Infrastructures
         public async Task ExecuteAsync(Func<Task> action)
         {
             var Strategy = DbContext.Database.CreateExecutionStrategy();
-            await Strategy.ExecuteAsync(async () =>
-            {
-                await action();
-
-            });
+            await Strategy.ExecuteAsync(async () => { await action(); });
         }
 
         public IDbContextTransaction BeginTransaction()
