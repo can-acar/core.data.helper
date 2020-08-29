@@ -19,9 +19,10 @@ namespace Core.Data.Helper.Extensions
             var serviceProvider = services.BuildServiceProvider();
             var configuration = serviceProvider.GetService<IConfiguration>();
 
-            services.AddDbContext<TContext>(options =>
+            foreach (var ServiceDescriptor in services.AddDbContext<TContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DB"))
-                    .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug))));
+                    .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)))))
+                
             services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
             services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
 
