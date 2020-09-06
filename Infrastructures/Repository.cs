@@ -31,9 +31,7 @@ namespace Core.Data.Helper.Infrastructures
         }
 
 
-        protected virtual IEnumerator<TEntity> GetEnumerator() =>
-            DbSet.AsEnumerable()
-                .GetEnumerator();
+        protected virtual IEnumerator<TEntity> GetEnumerator() => DbSet.AsEnumerable().GetEnumerator();
 
         /// <summary>
         /// </summary>
@@ -54,7 +52,7 @@ namespace Core.Data.Helper.Infrastructures
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public virtual async Task<IQueryable<TEntity>> AsQueryableAsync() => await Task.FromResult(DbSet.AsQueryable());
+        public virtual Task<IQueryable<TEntity>> AsQueryableAsync() => Task.FromResult(DbSet.AsQueryable());
 
         /// <summary>
         /// </summary>
@@ -179,8 +177,7 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual IQueryable<TEntity> GetAll(params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
-                .AsQueryable();
+            PerformInclusions(includeProperties).AsQueryable();
 
         /// <summary>
         /// </summary>
@@ -188,8 +185,7 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includeProperties)
         {
-            return Task.Run(() => PerformInclusions(includeProperties)
-                .AsQueryable());
+            return Task.FromResult(PerformInclusions(includeProperties).AsQueryable());
         }
 
         /// <summary>
@@ -354,14 +350,14 @@ namespace Core.Data.Helper.Infrastructures
         /// <summary>
         /// </summary>
         /// <param name="entity"></param>
-        public virtual async Task DeleteAsync(TEntity entity)
+        public virtual Task DeleteAsync(TEntity entity)
         {
             //DbSet = DbContext.Set<TEntity>();
 
             if (Context.Entry(entity).State == EntityState.Detached)
                 DbSet.Attach(entity);
 
-            await Task.Run(() => DbSet.Remove(entity));
+            return Task.FromResult(DbSet.Remove(entity));
         }
 
         /// <summary>
@@ -386,9 +382,9 @@ namespace Core.Data.Helper.Infrastructures
         /// </summary>
         /// <param name="entities"></param>
         /// <returns></returns>
-        public virtual async Task InsertArrayAsync(ICollection<TEntity> entities)
+        public virtual Task InsertArrayAsync(ICollection<TEntity> entities)
         {
-            await Task.Run(() => DbSet.AddRange(entities));
+            return Task.Run(() => DbSet.AddRange(entities));
         }
 
         /// <summary>
@@ -396,10 +392,10 @@ namespace Core.Data.Helper.Infrastructures
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public virtual async Task InsertAsync(TEntity entity)
+        public virtual Task InsertAsync(TEntity entity)
         {
             //DbSet = DbContext.Set<TEntity>();
-            await Task.Run(() => DbSet.Add(entity));
+            return Task.FromResult(DbSet.Add(entity));
         }
 
         /// <summary>
@@ -419,13 +415,13 @@ namespace Core.Data.Helper.Infrastructures
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public virtual async Task UpdateAsync(TEntity entity)
+        public virtual Task UpdateAsync(TEntity entity)
         {
             // DbSet = DbContext.Set<TEntity>();
             Context.Entry(entity)
                 .State = EntityState.Modified;
 
-            await Task.Run(() => DbSet.Update(entity));
+            return Task.FromResult(DbSet.Update(entity));
         }
 
         /// <summary>
