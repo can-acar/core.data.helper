@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -30,6 +31,11 @@ namespace Core.Data.Helper.Infrastructures
             Entity = context.Set<TEntity>();
         }
 
+
+        IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
         protected virtual IEnumerator<TEntity> GetEnumerator() => DbSet.AsEnumerable().GetEnumerator();
 
@@ -266,8 +272,7 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual Task<bool> AnyAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual Task<bool> AnyAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) => PerformInclusions(includeProperties)
                 .AnyAsync(where);
 
         /// <summary>
@@ -277,8 +282,7 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="rowsCount"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual IQueryable<TEntity> Pagination(int currentPage, int limit, out int rowsCount,
-            params Expression<Func<TEntity, object>>[] includeProperties)
+        public virtual IQueryable<TEntity> Pagination(int currentPage, int limit, out int rowsCount, params Expression<Func<TEntity, object>>[] includeProperties)
         {
             rowsCount = PerformInclusions(includeProperties)
                 .Count();
@@ -296,8 +300,7 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="rowsCount"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual Task<IQueryable<TEntity>> PaginationAsync(int currentPage, int limit, Func<int, int> rowsCount,
-            params Expression<Func<TEntity, object>>[] includeProperties)
+        public virtual Task<IQueryable<TEntity>> PaginationAsync(int currentPage, int limit, Func<int, int> rowsCount, params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var Count = PerformInclusions(includeProperties)
                 .Count();
@@ -479,5 +482,47 @@ namespace Core.Data.Helper.Infrastructures
         {
             return Task.FromResult(DbSet.FromSqlRaw(query, parameters));
         }
+
+        /// <summary>
+        ///  var departmentsQuery = unitOfWork.DepartmentRepository.Get(
+        //    orderBy: q => q.OrderBy(d => d.Name));
+        //    ViewBag.DepartmentID = new SelectList(departmentsQuery, "DepartmentID", "Name", selectedDepartment);
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="includeProperties"></param>
+        /// <returns></returns>
+        public virtual IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, string includeProperties = "")
+        {
+            IQueryable<TEntity> query = DbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            foreach (var includeProperty in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProperty);
+            }
+
+            if (orderBy != null)
+            {
+                return orderBy(query).ToList();
+            }
+            else
+            {
+                return query.ToList();
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public Type ElementType { get; }
+        public Expression Expression { get; }
+        public IQueryProvider Provider { get; }
     }
 }

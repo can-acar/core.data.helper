@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Core.Data.Helper.Infrastructures
 {
-    public interface IRepository<TEntity> where TEntity : class
+    public interface IRepository<TEntity>:IQueryable<TEntity> where TEntity : class
     {
         DbSet<TEntity> Entity { get; set; }
 
