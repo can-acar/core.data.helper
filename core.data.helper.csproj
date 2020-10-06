@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-
-        <TargetFramework>netcoreapp3.1</TargetFramework>
         <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
         <Version>3.0.1</Version>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -15,12 +13,10 @@
         <Nullable>disable</Nullable>
         <AssemblyName>Core.Data.Helper</AssemblyName>
         <RootNamespace>Core.Data.Helper</RootNamespace>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
 
     </PropertyGroup>
     <ItemGroup>
-      <PackageReference Include="Autofac" Version="6.0.0" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.8" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
     </ItemGroup>
  

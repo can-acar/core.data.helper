@@ -325,7 +325,7 @@ namespace Core.Data.Helper.Extensions
 
                 OrderProperty = EntityType.GetProperty(OrderBy,
                     BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                PropertyAccess = Expression.MakeMemberAccess(EntityParameter, OrderProperty);
+                PropertyAccess = Expression.MakeMemberAccess(EntityParameter, OrderProperty!);
                 OrderByExpression = Expression.Lambda(PropertyAccess, EntityParameter);
 
                 ResultExpression = Expression.Call(typeof(Queryable),
