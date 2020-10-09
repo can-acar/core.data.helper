@@ -42,21 +42,17 @@ namespace Core.Data.Helper.Extensions
             var ParameterExpression = Expression.Parameter(typeof(TSource), "src");
 
             var PropertyInfos = DestinationProperties.ToList();
-            var Bindings = PropertyInfos
-                .Select(destinationProperty =>
-                    BuildBinding(ParameterExpression, destinationProperty, SourceProperties))
-                .Where(binding => binding != null);
+            var Bindings = PropertyInfos.Select(destinationProperty => BuildBinding(ParameterExpression, destinationProperty, SourceProperties))
+                                        .Where(binding => binding != null);
 
             Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), Bindings), ParameterExpression);
 
             Bindings = PropertyInfos
-                .Select(destinationProperty =>
-                    BuildBinding(ParameterExpression, destinationProperty, SourceProperties))
-                .Where(binding => binding != null);
+                       .Select(destinationProperty => BuildBinding(ParameterExpression, destinationProperty, SourceProperties))
+                       .Where(binding => binding != null);
 
-            var ExpressionLambda = Expression.Lambda<Func<TSource, TDest>>(
-                Expression.MemberInit(Expression.New(typeof(TDest)), Bindings),
-                ParameterExpression);
+            var ExpressionLambda = Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), Bindings),
+                                                                           ParameterExpression);
 
             var Key = GetCacheKey<TDest>();
 
@@ -89,12 +85,12 @@ namespace Core.Data.Helper.Extensions
                 if (SourceProperty == null) return null;
                 {
                     var SourceChildProperty = SourceProperty.PropertyType.GetProperties()
-                        .FirstOrDefault(src => src.Name == PropertyNames[1]);
+                                                            .FirstOrDefault(src => src.Name == PropertyNames[1]);
 
                     return Expression.Bind(destinationProperty,
-                        Expression
-                            .Property(Expression.Property(parameterExpression, SourceProperty),
-                                SourceChildProperty ?? throw new ArgumentNullException()));
+                                           Expression
+                                               .Property(Expression.Property(parameterExpression, SourceProperty),
+                                                         SourceChildProperty ?? throw new ArgumentNullException()));
                 }
             }
 #pragma warning disable CS8603

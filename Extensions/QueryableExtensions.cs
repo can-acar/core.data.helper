@@ -31,7 +31,7 @@ namespace Core.Data.Helper.Extensions
         }
 
         public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(this IRepository<TEntity> source,
-            Expression<Func<TEntity, TProperty>> navigationPropertyPath)
+                                                                                           Expression<Func<TEntity, TProperty>> navigationPropertyPath)
             where TEntity : class
         {
             return source.Entity.Include(navigationPropertyPath);

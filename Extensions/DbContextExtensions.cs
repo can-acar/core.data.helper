@@ -22,9 +22,8 @@ namespace Core.Data.Helper.Extensions
             foreach (var ServiceDescriptor in services.AddDbContext<TContext>(options =>
                                                                                   options.UseSqlServer(configuration.GetConnectionString(connectionStringName))
                                                                                          .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)))))
-
                 services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
-            services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
+                services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
 
             return services;
         }
