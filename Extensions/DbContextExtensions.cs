@@ -17,14 +17,13 @@ namespace Core.Data.Helper.Extensions
         public static IServiceCollection RegisterContext<TContext>(this IServiceCollection services, string connectionStringName) where TContext : DbContext
         {
             var serviceProvider = services.BuildServiceProvider();
-            var configuration   = serviceProvider.GetService<IConfiguration>();
+            var configuration = serviceProvider.GetService<IConfiguration>();
 
             foreach (var ServiceDescriptor in services.AddDbContext<TContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DB"))
-                    .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)))))
-                
-            services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
-            services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
+                                                                                  options.UseSqlServer(configuration.GetConnectionString(connectionStringName))
+                                                                                         .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)))))
+                services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
+                services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
 
             return services;
         }
@@ -33,8 +32,8 @@ namespace Core.Data.Helper.Extensions
         {
             builder.Register(componentContext =>
                    {
-                       var ServiceProvider  = componentContext.Resolve<IServiceProvider>();
-                       var Configuration    = componentContext.Resolve<IConfiguration>();
+                       var ServiceProvider = componentContext.Resolve<IServiceProvider>();
+                       var Configuration = componentContext.Resolve<IConfiguration>();
                        var DbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
                        var OptionsBuilder = new DbContextOptionsBuilder<TContext>(DbContextOptions)
                                             .UseApplicationServiceProvider(ServiceProvider)

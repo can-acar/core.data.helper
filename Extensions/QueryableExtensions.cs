@@ -321,9 +321,10 @@ namespace Core.Data.Helper.Extensions
                     ? "ThenBy"
                     : "ThenByDescending";
 
-                OrderProperty = EntityType.GetProperty(OrderBy,
-                                                       BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                PropertyAccess    = Expression.MakeMemberAccess(EntityParameter, OrderProperty);
+                OrderProperty  = EntityType.GetProperty(OrderBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+             
+                PropertyAccess = Expression.MakeMemberAccess(EntityParameter, OrderProperty!);
+
                 OrderByExpression = Expression.Lambda(PropertyAccess, EntityParameter);
 
                 ResultExpression = Expression.Call(typeof(Queryable),
