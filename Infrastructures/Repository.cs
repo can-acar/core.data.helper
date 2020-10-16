@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -19,23 +18,19 @@ namespace Core.Data.Helper.Infrastructures
         }
     }
 
-    public class Repository<TEntity> : BaseRepository<TEntity>, IRepository<TEntity> where TEntity : class, new()
+    public class Repository<TEntity> :  IRepository<TEntity> where TEntity : class, new()
     {
         private readonly DbSet<TEntity> DbSet;
-
+        private DbContext Context { get; }
         public DbSet<TEntity> Entity { get; set; }
 
-        public Repository(DbContext context) : base(context)
+        public Repository(DbContext context) //: base(context)
         {
-            DbSet  = context.Set<TEntity>();
-            Entity = context.Set<TEntity>();
+            Context = context;
+            DbSet   = context.Set<TEntity>();
+            Entity  = context.Set<TEntity>();
         }
 
-
-        IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
 
         protected virtual IEnumerator<TEntity> GetEnumerator() => DbSet.AsEnumerable().GetEnumerator();
 
@@ -532,14 +527,5 @@ namespace Core.Data.Helper.Infrastructures
                 return query.ToList();
             }
         }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public Type ElementType { get; }
-        public Expression Expression { get; }
-        public IQueryProvider Provider { get; }
     }
 }
