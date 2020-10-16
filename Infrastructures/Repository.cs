@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -26,12 +27,25 @@ namespace Core.Data.Helper.Infrastructures
 
         public Repository(DbContext context) //: base(context)
         {
+<<<<<<< Updated upstream
             Context = context;
             DbSet   = context.Set<TEntity>();
             Entity  = context.Set<TEntity>();
         }
 
 
+=======
+            DbSet  = context.Set<TEntity>();
+            Entity = context.Set<TEntity>();
+        }
+
+
+        IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+>>>>>>> Stashed changes
         protected virtual IEnumerator<TEntity> GetEnumerator() => DbSet.AsEnumerable().GetEnumerator();
 
         /// <summary>
@@ -186,7 +200,12 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includeProperties)
         {
+<<<<<<< Updated upstream
             return Task.FromResult(PerformInclusions(includeProperties).AsQueryable());
+=======
+            return Task.Run(() => PerformInclusions(includeProperties)
+                                .AsQueryable());
+>>>>>>> Stashed changes
         }
 
         /// <summary>
@@ -277,7 +296,12 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="rowsCount"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
+<<<<<<< Updated upstream
         public virtual IQueryable<TEntity> Pagination(int currentPage, int limit, out int rowsCount, params Expression<Func<TEntity, object>>[] includeProperties)
+=======
+        public virtual IQueryable<TEntity> Pagination(int currentPage, int limit, out int rowsCount,
+                                                      params Expression<Func<TEntity, object>>[] includeProperties)
+>>>>>>> Stashed changes
         {
             rowsCount = PerformInclusions(includeProperties)
                 .Count();
@@ -295,7 +319,12 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="rowsCount"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
+<<<<<<< Updated upstream
         public virtual Task<IQueryable<TEntity>> PaginationAsync(int currentPage, int limit, Func<int, int> rowsCount, params Expression<Func<TEntity, object>>[] includeProperties)
+=======
+        public virtual Task<IQueryable<TEntity>> PaginationAsync(int currentPage, int limit, Func<int, int> rowsCount,
+                                                                 params Expression<Func<TEntity, object>>[] includeProperties)
+>>>>>>> Stashed changes
         {
             var Count = PerformInclusions(includeProperties)
                 .Count();
@@ -495,6 +524,7 @@ namespace Core.Data.Helper.Infrastructures
             return Task.FromResult(DbSet.FromSqlRaw(query, parameters));
         }
 
+<<<<<<< Updated upstream
         /// <summary>
         ///  var departmentsQuery = unitOfWork.DepartmentRepository.Get(
         //    orderBy: q => q.OrderBy(d => d.Name));
@@ -527,5 +557,15 @@ namespace Core.Data.Helper.Infrastructures
                 return query.ToList();
             }
         }
+=======
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public Type ElementType { get; }
+        public Expression Expression { get; }
+        public IQueryProvider Provider { get; }
+>>>>>>> Stashed changes
     }
 }
