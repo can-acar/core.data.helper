@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -31,53 +32,53 @@ namespace Core.Data.Helper.Infrastructures
         Task<IQueryable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includeProperties);
 
         IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> where,
-                                  params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         Task<IQueryable<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> where,
-                                             params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         IQueryable<TEntity> Find(Expression<Func<TEntity, bool>> where,
-                                 params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         Task<IQueryable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> where,
-                                            params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         TEntity Single();
 
         TEntity Single(Expression<Func<TEntity, bool>> where,
-                       params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> where,
-                                  params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         TEntity SingleOrDefault(Expression<Func<TEntity, bool>> where,
-                                params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> where,
-                                           params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         TEntity First(Expression<Func<TEntity, bool>> where,
-                      params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         Task<TEntity> FirstAsync(Expression<Func<TEntity, bool>> where,
-                                 params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         TEntity FirstOrDefault(Expression<Func<TEntity, bool>> where,
-                               params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> where,
-                                          params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         bool Any(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties);
 
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> where,
-                            params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         IQueryable<TEntity> Pagination(int currentPage, int limit, out int rowsCount,
-                                       params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         Task<IQueryable<TEntity>> PaginationAsync(int currentPage, int limit, Func<int, int> rowsCount,
-                                                  params Expression<Func<TEntity, object>>[] includeProperties);
+            params Expression<Func<TEntity, object>>[] includeProperties);
 
         IQueryable<TEntity> AsNoTracking();
 
@@ -107,6 +108,7 @@ namespace Core.Data.Helper.Infrastructures
         //IEnumerable<T> SqlQuery<T>(string query, params object[] parameters) where T : new();
         //Task<IEnumerable<T>> SqlQueryAsync<T>(string query, params object[] parameters) where T : new();
 
+        Task<List<TEntity>> SqlQuery(Func<DbDataReader, TEntity> entity, string sqlQuery, params object[] parameters);
         int SaveChanges();
 
         Task<int> SaveChangesAsync();

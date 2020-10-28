@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -18,7 +20,7 @@ namespace Core.Data.Helper.Infrastructures
         }
     }
 
-    public class Repository<TEntity> :  IRepository<TEntity> where TEntity : class, new()
+    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
     {
         private readonly DbSet<TEntity> DbSet;
         private DbContext Context { get; }
@@ -27,8 +29,8 @@ namespace Core.Data.Helper.Infrastructures
         public Repository(DbContext context) //: base(context)
         {
             Context = context;
-            DbSet   = context.Set<TEntity>();
-            Entity  = context.Set<TEntity>();
+            DbSet = context.Set<TEntity>();
+            Entity = context.Set<TEntity>();
         }
 
 
@@ -70,7 +72,7 @@ namespace Core.Data.Helper.Infrastructures
         public virtual Task<IQueryable<TEntity>> AsQueryableAsync(params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
-                                .AsQueryable());
+                .AsQueryable());
         }
 
         /// <summary>
@@ -131,10 +133,10 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> where,
-                                                           params Expression<Func<TEntity, object>>[] includeProperties)
+            params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
-                                .Where(where));
+                .Where(where));
         }
 
         /// <summary>
@@ -247,10 +249,10 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> where,
-                                                            params Expression<Func<TEntity, object>>[] includeProperties)
+            params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
-                                .Where(where));
+                .Where(where));
         }
 
         /// <summary>
@@ -283,9 +285,9 @@ namespace Core.Data.Helper.Infrastructures
                 .Count();
 
             return PerformInclusions(includeProperties)
-                   .Skip((currentPage - 1) * limit)
-                   .Take(limit)
-                   .AsQueryable();
+                .Skip((currentPage - 1) * limit)
+                .Take(limit)
+                .AsQueryable();
         }
 
         /// <summary>
@@ -297,15 +299,15 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> PaginationAsync(int currentPage, int limit, Func<int, int> rowsCount, params Expression<Func<TEntity, object>>[] includeProperties)
         {
-            var Count = PerformInclusions(includeProperties)
+            var count = PerformInclusions(includeProperties)
                 .Count();
 
-            rowsCount(Count);
+            rowsCount(count);
 
             return Task.Run(() => PerformInclusions(includeProperties)
-                                  .Skip((currentPage - 1) * limit)
-                                  .Take(limit)
-                                  .AsQueryable());
+                .Skip((currentPage - 1) * limit)
+                .Take(limit)
+                .AsQueryable());
         }
 
         /// <summary>
@@ -322,7 +324,7 @@ namespace Core.Data.Helper.Infrastructures
             //DbSet = DbContext.Set<TEntity>();
 
             if (Context.Entry(entity)
-                       .State == EntityState.Detached)
+                .State == EntityState.Detached)
                 DbSet.Attach(entity);
 
             DbSet.Remove(entity);
@@ -334,32 +336,32 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="match"></param>
         public virtual void Delete(Expression<Func<TEntity, bool>> match)
         {
-            var Items = DbSet.Where(match).AsQueryable();
+            var ıtems = DbSet.Where(match).AsQueryable();
 
-            foreach (var Item in Items)
+            foreach (var ıtem in ıtems)
             {
-                DbSet.Remove(Item);
+                DbSet.Remove(ıtem);
             }
         }
 
         /// <summary>
         /// /
         /// </summary>
-        /// <param name="entity"></param>
+        /// <param name="where"></param>
         /// <returns></returns>
-        public virtual Task DeleteAsync(Expression<Func<TEntity, bool>> match)
+        public virtual Task DeleteAsync(Expression<Func<TEntity, bool>> where)
         {
             //DbSet = DbContext.Set<TEntity>();
-            var Items = DbSet.Where(match).AsQueryable();
+            var ıtems = DbSet.Where(where).AsQueryable();
 
-            foreach (var Item in Items)
+            foreach (var ıtem in ıtems)
             {
                 // if (Context.Entry(Item).State == EntityState.Detached)
                 //     DbSet.Attach(Item);
-                DbSet.Remove(Item);
+                DbSet.Remove(ıtem);
             }
 
-            return Task.FromResult(Items);
+            return Task.FromResult(ıtems);
         }
 
         /// <summary>
@@ -434,7 +436,7 @@ namespace Core.Data.Helper.Infrastructures
         {
             // DbSet = DbContext.Set<TEntity>();
             Context.Entry(entity)
-                   .State = EntityState.Modified;
+                .State = EntityState.Modified;
 
             return Task.FromResult(DbSet.Update(entity));
         }
@@ -449,16 +451,16 @@ namespace Core.Data.Helper.Infrastructures
             if (entity == null)
                 return null;
 
-            var Existing = DbSet.SingleOrDefault(match);
+            var existing = DbSet.SingleOrDefault(match);
 
-            if (Existing == null)
+            if (existing == null)
                 return new TEntity();
 
             Context.Entry(entity).State = EntityState.Modified;
 
             DbSet.Update(entity);
 
-            return Existing;
+            return existing;
         }
 
         /// <summary>
@@ -482,7 +484,10 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="query"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public virtual IQueryable<TEntity> SqlQuery(string query, params object[] parameters) => DbSet.FromSqlRaw(query, parameters);
+        public virtual IQueryable<TEntity> SqlQuery(string query, params object[] parameters)
+        {
+            return DbSet.FromSqlRaw(query, parameters);
+        }
 
         /// <summary>
         /// 
@@ -493,6 +498,68 @@ namespace Core.Data.Helper.Infrastructures
         public virtual Task<IQueryable<TEntity>> SqlQueryAsync(string query, params object[] parameters)
         {
             return Task.FromResult(DbSet.FromSqlRaw(query, parameters));
+        }
+
+        /// <summary>
+        ///  This method without DbSet and Model.
+        /// </summary>
+        /// <param name="sqlQuery"></param>
+        /// <param name="map"></param>
+        /// <returns></returns>
+        public virtual async Task<List<TEntity>> RawSql(string sqlQuery, Func<DbDataReader, TEntity> map)
+        {
+            await using var command = Context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = sqlQuery;
+            command.CommandType = CommandType.Text;
+
+            if (!await Context.Database.CanConnectAsync())
+                await Context.Database.OpenConnectionAsync();
+
+
+            await using var result = await command.ExecuteReaderAsync();
+            var entities = new List<TEntity>();
+
+            while (await result.ReadAsync())
+            {
+                entities.Add(map(result));
+            }
+
+            return entities;
+        }
+
+        /// <summary>
+        ///  This method without DbSet and Model.
+        ///  NOT! in testing phase
+        /// </summary>
+        /// <param name="sqlQuery"></param>
+        /// <param name="parameters"></param>
+        /// <param name="entity"></param>
+        /// <returns TEntity="&gt;">Task<List
+        /// </returns>
+        public virtual async Task<List<TEntity>> SqlQuery(Func<DbDataReader, TEntity> entity, string sqlQuery, params object[] parameters)
+        {
+            await using var command = Context.Database.GetDbConnection().CreateCommand();
+
+            command.CommandText = sqlQuery;
+            command.CommandType = CommandType.Text;
+
+            if (parameters != null)
+                foreach (var p in parameters)
+                    command.Parameters.Add(p);
+
+            if (!await Context.Database.CanConnectAsync())
+                await Context.Database.OpenConnectionAsync();
+
+            await using var result = await command.ExecuteReaderAsync();
+
+            var entities = new List<TEntity>();
+
+            while (await result.ReadAsync())
+            {
+                entities.Add(entity(result));
+            }
+
+            return entities;
         }
 
         /// <summary>

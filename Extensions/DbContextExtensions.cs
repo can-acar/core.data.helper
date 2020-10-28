@@ -19,7 +19,7 @@ namespace Core.Data.Helper.Extensions
             var serviceProvider = services.BuildServiceProvider();
             var configuration = serviceProvider.GetService<IConfiguration>();
 
-            foreach (var ServiceDescriptor in services.AddDbContext<TContext>(options =>
+            foreach (var serviceDescriptor in services.AddDbContext<TContext>(options =>
                                                                                   options.UseSqlServer(configuration.GetConnectionString(connectionStringName))
                                                                                          .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)))))
                 services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
@@ -32,16 +32,16 @@ namespace Core.Data.Helper.Extensions
         {
             builder.Register(componentContext =>
                    {
-                       var ServiceProvider = componentContext.Resolve<IServiceProvider>();
-                       var Configuration = componentContext.Resolve<IConfiguration>();
-                       var DbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
-                       var OptionsBuilder = new DbContextOptionsBuilder<TContext>(DbContextOptions)
-                                            .UseApplicationServiceProvider(ServiceProvider)
-                                            .UseSqlServer(Configuration.GetConnectionString(connectionStringName))
+                       var serviceProvider = componentContext.Resolve<IServiceProvider>();
+                       var configuration = componentContext.Resolve<IConfiguration>();
+                       var dbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
+                       var optionsBuilder = new DbContextOptionsBuilder<TContext>(dbContextOptions)
+                                            .UseApplicationServiceProvider(serviceProvider)
+                                            .UseSqlServer(configuration.GetConnectionString(connectionStringName))
                                             // .UseSqlServer(Configuration.GetConnectionString(connectionStringName),
                                             //               serverOptions => serverOptions.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null))
                                             .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)));
-                       return OptionsBuilder.Options;
+                       return optionsBuilder.Options;
                    }).As<DbContextOptions<TContext>>()
                    .InstancePerLifetimeScope();
 

@@ -23,8 +23,8 @@ namespace Core.Data.Helper.Infrastructures
 
         public async Task ExecuteAsync(Func<Task> action)
         {
-            var Strategy = DbContext.Database.CreateExecutionStrategy();
-            await Strategy.ExecuteAsync(async () => { await action(); });
+            var strategy = DbContext.Database.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () => { await action(); });
         }
 
         public IDbContextTransaction BeginTransaction()
