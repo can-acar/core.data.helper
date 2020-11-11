@@ -1,26 +1,28 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
-        <Version>3.0.1</Version>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <LangVersion>latestmajor</LangVersion>
-        <Description>Can Acar</Description>
-        <Copyright>Can Acar</Copyright>
-        <PackageProjectUrl>https://github.com/51tharea</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/51tharea</PackageLicenseUrl>
-        <RepositoryUrl>https://github.com/51tharea</RepositoryUrl>
-        <IsPackable>false</IsPackable>
-        <Nullable>disable</Nullable>
-        <AssemblyName>Core.Data.Helper</AssemblyName>
-        <RootNamespace>Core.Data.Helper</RootNamespace>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
-
-    </PropertyGroup>
-    <ItemGroup>
-      <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.0.2" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.9" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.9" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.9" />
-    </ItemGroup>
-
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
+  <PropertyGroup>
+    <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+    <Version>3.0.1</Version>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <LangVersion>latestmajor</LangVersion>
+    <Description>Can Acar</Description>
+    <Copyright>Can Acar</Copyright>
+    <PackageProjectUrl>https://github.com/51tharea</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/51tharea</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/51tharea</RepositoryUrl>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+    <AssemblyName>Core.Data.Helper</AssemblyName>
+    <RootNamespace>Core.Data.Helper</RootNamespace>
+    <TargetFramework>netcoreapp5.0</TargetFramework>
+    <FileUpgradeFlags>40</FileUpgradeFlags>
+    <UpgradeBackupLocation>E:\Projects\core.data.helper\Backup1\</UpgradeBackupLocation>
+    <OldToolsVersion>Current</OldToolsVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0" />
+  </ItemGroup>
 </Project>
