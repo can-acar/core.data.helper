@@ -25,9 +25,7 @@ namespace Core.Data.Helper.Extensions
             params Expression<Func<TEntity, TProperty>>[] navigationPropertyPath)
             where TEntity : class
         {
-            return navigationPropertyPath.Aggregate<Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(
-                source.Entity,
-                (entities, expression) => entities.Include(expression));
+            return navigationPropertyPath.Aggregate<Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(source.Entity, (entities, expression) => entities.Include(expression));
         }
 
         public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(this IRepository<TEntity> source,
