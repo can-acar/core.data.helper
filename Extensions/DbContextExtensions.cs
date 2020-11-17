@@ -26,7 +26,7 @@ namespace Core.Data.Helper.Extensions
                     .UseSqlServer(configuration.GetConnectionString(connectionStringName), options =>
                     {
                         options.UseRelationalNulls();
-                        options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                        options.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
                     })
                     .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)))))
 
@@ -52,7 +52,7 @@ namespace Core.Data.Helper.Extensions
                         .UseSqlServer(configuration.GetConnectionString(connectionStringName), options =>
                         {
                             options.UseRelationalNulls();
-                            options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                            options.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
                         })
                         // .UseSqlServer(Configuration.GetConnectionString(connectionStringName),
                         //               serverOptions => serverOptions.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null))
