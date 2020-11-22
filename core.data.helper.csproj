@@ -3,7 +3,7 @@
         <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
         <Version>3.0.1</Version>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <LangVersion>latestmajor</LangVersion>
+        <LangVersion>9</LangVersion>
         <Description>Can Acar</Description>
         <Copyright>Can Acar</Copyright>
         <PackageProjectUrl>https://github.com/51tharea</PackageProjectUrl>
@@ -16,12 +16,4 @@
         <TargetFramework>netcoreapp5.0</TargetFramework>
 
     </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="Autofac" Version="6.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="5.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0" />
-    </ItemGroup>
 </Project>
