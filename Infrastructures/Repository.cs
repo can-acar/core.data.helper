@@ -10,15 +10,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Core.Data.Helper.Infrastructures
 {
-    public abstract class BaseRepository<TEntity> where TEntity : class
-    {
-        protected DbContext Context { get; }
-
-        protected BaseRepository(DbContext context)
-        {
-            Context = context;
-        }
-    }
+ 
 
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
     {

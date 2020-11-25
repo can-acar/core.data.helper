@@ -3,7 +3,7 @@
         <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
         <Version>3.0.1</Version>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <LangVersion>latestmajor</LangVersion>
+        <LangVersion>9</LangVersion>
         <Description>Can Acar</Description>
         <Copyright>Can Acar</Copyright>
         <PackageProjectUrl>https://github.com/51tharea</PackageProjectUrl>

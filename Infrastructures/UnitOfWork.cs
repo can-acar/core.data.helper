@@ -13,7 +13,7 @@ namespace Core.Data.Helper.Infrastructures
         private readonly TContext Context;
         public TContext DbContext => Context;
         private IDbContextTransaction ContextTransaction;
-        private bool                  Disposed;
+        private bool Disposed;
 
         public UnitOfWork(TContext context)
         {
