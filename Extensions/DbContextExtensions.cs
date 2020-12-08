@@ -18,17 +18,17 @@ namespace Core.Data.Helper.Extensions
         {
             builder.Register(componentContext =>
                 {
-                    var ServiceProvider = componentContext.Resolve<IServiceProvider>();
-                    var Configuration = componentContext.Resolve<IConfiguration>();
-                    var DbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
-                    var OptionsBuilder = new DbContextOptionsBuilder<TContext>(DbContextOptions)
-                        .UseApplicationServiceProvider(ServiceProvider)
-                        .UseSqlServer(Configuration.GetConnectionString(connectionStringName))
+                    var serviceProvider = componentContext.Resolve<IServiceProvider>();
+                    var configuration = componentContext.Resolve<IConfiguration>();
+                    var dbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
+                    var optionsBuilder = new DbContextOptionsBuilder<TContext>(dbContextOptions)
+                        .UseApplicationServiceProvider(serviceProvider)
+                        .UseSqlServer(configuration.GetConnectionString(connectionStringName))
                         // .UseSqlServer(Configuration.GetConnectionString(connectionStringName),
                         //               serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null))
                         .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)));
 
-                    return OptionsBuilder.Options;
+                    return optionsBuilder.Options;
                 }).As<DbContextOptions<TContext>>()
                 .InstancePerLifetimeScope();
 
