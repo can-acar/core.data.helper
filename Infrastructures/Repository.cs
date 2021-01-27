@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Core.Data.Helper.Infrastructures
 {
- 
-
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
     {
         private readonly DbSet<TEntity> DbSet;
@@ -21,12 +19,15 @@ namespace Core.Data.Helper.Infrastructures
         public Repository(DbContext context) //: base(context)
         {
             Context = context;
-            DbSet = context.Set<TEntity>();
-            Entity = context.Set<TEntity>();
+            DbSet   = context.Set<TEntity>();
+            Entity  = context.Set<TEntity>();
         }
 
-
-        protected virtual IEnumerator<TEntity> GetEnumerator() => DbSet.AsEnumerable().GetEnumerator();
+        protected virtual IEnumerator<TEntity> GetEnumerator()
+        {
+            return DbSet.AsEnumerable()
+                        .GetEnumerator();
+        }
 
         /// <summary>
         /// </summary>
@@ -42,20 +43,28 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns>
         ///     @IQueryable
         /// </returns>
-        public virtual IQueryable<TEntity> AsQueryable() => DbSet.AsQueryable();
+        public virtual IQueryable<TEntity> AsQueryable()
+        {
+            return DbSet.AsQueryable();
+        }
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public virtual Task<IQueryable<TEntity>> AsQueryableAsync() => Task.FromResult(DbSet.AsQueryable());
+        public virtual Task<IQueryable<TEntity>> AsQueryableAsync()
+        {
+            return Task.FromResult(DbSet.AsQueryable());
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual IQueryable<TEntity> AsQueryable(params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual IQueryable<TEntity> AsQueryable(params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .AsQueryable();
+        }
 
         /// <summary>
         /// </summary>
@@ -64,7 +73,7 @@ namespace Core.Data.Helper.Infrastructures
         public virtual Task<IQueryable<TEntity>> AsQueryableAsync(params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
-                .AsQueryable());
+                                .AsQueryable());
         }
 
         /// <summary>
@@ -72,52 +81,63 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual int Count(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual int Count(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .Count(where);
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual int Count(params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual int Count(params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .Count();
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual Task<int> CountAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual Task<int> CountAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .CountAsync(where);
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual Task<int> CountAsync(params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual Task<int> CountAsync(params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .CountAsync();
-
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual int CountAll(params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual int CountAll(params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .Count();
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual IQueryable<TEntity> Find(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual IQueryable<TEntity> Find(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .Where(where);
+        }
 
         /// <summary>
         /// </summary>
@@ -125,10 +145,10 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> where,
-            params Expression<Func<TEntity, object>>[] includeProperties)
+                                                           params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
-                .Where(where));
+                                .Where(where));
         }
 
         /// <summary>
@@ -136,43 +156,54 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual TEntity First(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual TEntity First(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .First(where);
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual Task<TEntity> FirstAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual Task<TEntity> FirstAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .FirstAsync(where);
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual TEntity FirstOrDefault(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual TEntity FirstOrDefault(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .FirstOrDefault(where);
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .FirstOrDefaultAsync(where);
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual IQueryable<TEntity> GetAll(params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties).AsQueryable();
+        public virtual IQueryable<TEntity> GetAll(params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
+                .AsQueryable();
+        }
 
         /// <summary>
         /// </summary>
@@ -180,60 +211,73 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includeProperties)
         {
-            return Task.FromResult(PerformInclusions(includeProperties).AsQueryable());
+            return Task.FromResult(PerformInclusions(includeProperties)
+                                       .AsQueryable());
         }
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public virtual TEntity Single() =>
-            AsQueryable()
+        public virtual TEntity Single()
+        {
+            return AsQueryable()
                 .Single();
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual TEntity Single(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual TEntity Single(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .Single(where);
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .SingleAsync(where);
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual TEntity SingleOrDefault(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual TEntity SingleOrDefault(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .SingleOrDefault(where);
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .SingleOrDefaultAsync(where);
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .Where(where);
+        }
 
         /// <summary>
         /// </summary>
@@ -241,10 +285,10 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> where,
-            params Expression<Func<TEntity, object>>[] includeProperties)
+                                                            params Expression<Func<TEntity, object>>[] includeProperties)
         {
             return Task.Run(() => PerformInclusions(includeProperties)
-                .Where(where));
+                                .Where(where));
         }
 
         /// <summary>
@@ -252,17 +296,22 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual bool Any(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties)
+        public virtual bool Any(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
                 .Any(where);
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="where"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual Task<bool> AnyAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties) => PerformInclusions(includeProperties)
-            .AnyAsync(where);
+        public virtual Task<bool> AnyAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
+                .AnyAsync(where);
+        }
 
         /// <summary>
         /// </summary>
@@ -277,9 +326,9 @@ namespace Core.Data.Helper.Infrastructures
                 .Count();
 
             return PerformInclusions(includeProperties)
-                .Skip((currentPage - 1) * limit)
-                .Take(limit)
-                .AsQueryable();
+                   .Skip((currentPage - 1) * limit)
+                   .Take(limit)
+                   .AsQueryable();
         }
 
         /// <summary>
@@ -297,16 +346,20 @@ namespace Core.Data.Helper.Infrastructures
             rowsCount(count);
 
             return Task.Run(() => PerformInclusions(includeProperties)
-                .Skip((currentPage - 1) * limit)
-                .Take(limit)
-                .AsQueryable());
+                                  .Skip((currentPage - 1) * limit)
+                                  .Take(limit)
+                                  .AsQueryable());
         }
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
+
         // DbSet = DbContext.Set<TEntity>();
-        public virtual IQueryable<TEntity> AsNoTracking() => DbSet.AsNoTracking();
+        public virtual IQueryable<TEntity> AsNoTracking()
+        {
+            return DbSet.AsNoTracking();
+        }
 
         /// <summary>
         /// </summary>
@@ -316,7 +369,8 @@ namespace Core.Data.Helper.Infrastructures
             //DbSet = DbContext.Set<TEntity>();
 
             if (Context.Entry(entity)
-                .State == EntityState.Detached)
+                       .State ==
+                EntityState.Detached)
                 DbSet.Attach(entity);
 
             DbSet.Remove(entity);
@@ -328,12 +382,10 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="match"></param>
         public virtual void Delete(Expression<Func<TEntity, bool>> match)
         {
-            var ıtems = DbSet.Where(match).AsQueryable();
+            var ıtems = DbSet.Where(match)
+                             .AsQueryable();
 
-            foreach (var ıtem in ıtems)
-            {
-                DbSet.Remove(ıtem);
-            }
+            foreach (var ıtem in ıtems) DbSet.Remove(ıtem);
         }
 
         /// <summary>
@@ -344,14 +396,14 @@ namespace Core.Data.Helper.Infrastructures
         public virtual Task DeleteAsync(Expression<Func<TEntity, bool>> where)
         {
             //DbSet = DbContext.Set<TEntity>();
-            var ıtems = DbSet.Where(where).AsQueryable();
+            var ıtems = DbSet.Where(where)
+                             .AsQueryable();
 
             foreach (var ıtem in ıtems)
-            {
+
                 // if (Context.Entry(Item).State == EntityState.Detached)
                 //     DbSet.Attach(Item);
                 DbSet.Remove(ıtem);
-            }
 
             return Task.FromResult(ıtems);
         }
@@ -416,6 +468,7 @@ namespace Core.Data.Helper.Infrastructures
             // Context.Entry(entity)
             //     .State = EntityState.Modified;
             Context.Attach(entity);
+
             //DbSet.Add(entity);
             // DbSet.Update(entity);
         }
@@ -428,7 +481,7 @@ namespace Core.Data.Helper.Infrastructures
         {
             // DbSet = DbContext.Set<TEntity>();
             Context.Entry(entity)
-                .State = EntityState.Modified;
+                   .State = EntityState.Modified;
 
             return Task.FromResult(DbSet.Update(entity));
         }
@@ -440,15 +493,14 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual TEntity Update(TEntity entity, Expression<Func<TEntity, bool>> match)
         {
-            if (entity == null)
-                return null;
+            if (entity == null) return null;
 
             var existing = DbSet.SingleOrDefault(match);
 
-            if (existing == null)
-                return new TEntity();
+            if (existing == null) return new TEntity();
 
-            Context.Entry(entity).State = EntityState.Modified;
+            Context.Entry(entity)
+                   .State = EntityState.Modified;
 
             DbSet.Update(entity);
 
@@ -458,18 +510,27 @@ namespace Core.Data.Helper.Infrastructures
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public int SaveChanges() => Context.SaveChanges();
+        public int SaveChanges()
+        {
+            return Context.SaveChanges();
+        }
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public Task<int> SaveChangesAsync() => Context.SaveChangesAsync();
+        public Task<int> SaveChangesAsync()
+        {
+            return Context.SaveChangesAsync();
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public EntityEntry<TEntity> Entry(TEntity entity) => Context.Entry(entity);
+        public EntityEntry<TEntity> Entry(TEntity entity)
+        {
+            return Context.Entry(entity);
+        }
 
         /// <summary>
         /// </summary>
@@ -500,21 +561,18 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual async Task<List<TEntity>> RawSql(string sqlQuery, Func<DbDataReader, TEntity> map)
         {
-            await using var command = Context.Database.GetDbConnection().CreateCommand();
+            await using var command = Context.Database.GetDbConnection()
+                                             .CreateCommand();
             command.CommandText = sqlQuery;
             command.CommandType = CommandType.Text;
 
-            if (!await Context.Database.CanConnectAsync())
-                await Context.Database.OpenConnectionAsync();
+            if (!await Context.Database.CanConnectAsync()) await Context.Database.OpenConnectionAsync();
 
 
-            await using var result = await command.ExecuteReaderAsync();
-            var entities = new List<TEntity>();
+            await using var result   = await command.ExecuteReaderAsync();
+            var             entities = new List<TEntity>();
 
-            while (await result.ReadAsync())
-            {
-                entities.Add(map(result));
-            }
+            while (await result.ReadAsync()) entities.Add(map(result));
 
             return entities;
         }
@@ -530,7 +588,8 @@ namespace Core.Data.Helper.Infrastructures
         /// </returns>
         public virtual async Task<List<TEntity>> SqlQuery(Func<DbDataReader, TEntity> entity, string sqlQuery, params object[] parameters)
         {
-            await using var command = Context.Database.GetDbConnection().CreateCommand();
+            await using var command = Context.Database.GetDbConnection()
+                                             .CreateCommand();
 
             command.CommandText = sqlQuery;
             command.CommandType = CommandType.Text;
@@ -539,17 +598,13 @@ namespace Core.Data.Helper.Infrastructures
                 foreach (var p in parameters)
                     command.Parameters.Add(p);
 
-            if (!await Context.Database.CanConnectAsync())
-                await Context.Database.OpenConnectionAsync();
+            if (!await Context.Database.CanConnectAsync()) await Context.Database.OpenConnectionAsync();
 
             await using var result = await command.ExecuteReaderAsync();
 
             var entities = new List<TEntity>();
 
-            while (await result.ReadAsync())
-            {
-                entities.Add(entity(result));
-            }
+            while (await result.ReadAsync()) entities.Add(entity(result));
 
             return entities;
         }
@@ -567,24 +622,15 @@ namespace Core.Data.Helper.Infrastructures
         {
             IQueryable<TEntity> query = DbSet;
 
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
+            if (filter != null) query = query.Where(filter);
 
-            foreach (var includeProperty in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
-            {
-                query = query.Include(includeProperty);
-            }
+            foreach (var includeProperty in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries)) query = query.Include(includeProperty);
 
             if (orderBy != null)
-            {
-                return orderBy(query).ToList();
-            }
+                return orderBy(query)
+                    .ToList();
             else
-            {
                 return query.ToList();
-            }
         }
     }
 }

@@ -17,48 +17,53 @@ namespace Core.Data.Helper.Extensions
         public static void RegisterContext<TContext>(this ContainerBuilder builder, string connectionStringName) where TContext : DbContext
         {
             builder.Register(componentContext =>
-                {
-                    var serviceProvider = componentContext.Resolve<IServiceProvider>();
-                    var configuration = componentContext.Resolve<IConfiguration>();
-                    var dbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
-                    var optionsBuilder = new DbContextOptionsBuilder<TContext>(dbContextOptions)
-                        .UseApplicationServiceProvider(serviceProvider)
-                        .UseSqlServer(configuration.GetConnectionString(connectionStringName))
-                        // .UseSqlServer(Configuration.GetConnectionString(connectionStringName),
-                        //               serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null))
-                        .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)));
+                   {
+                       var serviceProvider  = componentContext.Resolve<IServiceProvider>();
+                       var configuration    = componentContext.Resolve<IConfiguration>();
+                       var dbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
+                       var optionsBuilder = new DbContextOptionsBuilder<TContext>(dbContextOptions)
+                                            .UseApplicationServiceProvider(serviceProvider)
+                                            .UseSqlServer(configuration.GetConnectionString(connectionStringName))
 
-                    return optionsBuilder.Options;
-                }).As<DbContextOptions<TContext>>()
-                .InstancePerLifetimeScope();
+                                            // .UseSqlServer(Configuration.GetConnectionString(connectionStringName),
+                                            //               serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null))
+                                            .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)));
+
+                       return optionsBuilder.Options;
+                   })
+                   .As<DbContextOptions<TContext>>()
+                   .InstancePerLifetimeScope();
 
             builder.Register(context => context.Resolve<DbContextOptions<TContext>>())
-                .As<DbContextOptions>()
-                .InstancePerLifetimeScope();
+                   .As<DbContextOptions>()
+                   .InstancePerLifetimeScope();
 
             builder.RegisterType<TContext>()
-                .AsSelf()
-                .InstancePerLifetimeScope();
-            
-            builder.RegisterType<UnitOfWork<TContext>>().As<IUnitOfWork<TContext>>().As<IUnitOfWork>().InstancePerLifetimeScope();
+                   .AsSelf()
+                   .InstancePerLifetimeScope();
+
+            builder.RegisterType<UnitOfWork<TContext>>()
+                   .As<IUnitOfWork<TContext>>()
+                   .As<IUnitOfWork>()
+                   .InstancePerLifetimeScope();
         }
 
         public static IServiceCollection RegisterContext<TContext>(this IServiceCollection services, string connectionStringName) where TContext : DbContext
         {
             var serviceProvider = services.BuildServiceProvider();
-            var configuration = serviceProvider.GetService<IConfiguration>();
+            var configuration   = serviceProvider.GetService<IConfiguration>();
 
             foreach (var serviceDescriptor in services.AddDbContext<TContext>(options =>
-                options.EnableDetailedErrors()
-                    .EnableSensitiveDataLogging()
-                    .EnableServiceProviderCaching()
-                    .UseSqlServer(configuration.GetConnectionString(connectionStringName), options =>
-                    {
-                        options.UseRelationalNulls();
-                        options.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
-                    })
-                    .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)))))
-
+                                                                                  options.EnableDetailedErrors()
+                                                                                         .EnableSensitiveDataLogging()
+                                                                                         .EnableServiceProviderCaching()
+                                                                                         .UseSqlServer(configuration.GetConnectionString(connectionStringName),
+                                                                                                       options =>
+                                                                                                       {
+                                                                                                           options.UseRelationalNulls();
+                                                                                                           options.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+                                                                                                       })
+                                                                                         .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)))))
                 services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
 
             services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
@@ -69,42 +74,45 @@ namespace Core.Data.Helper.Extensions
         public static void RegisterContext<TContext>(this ContainerBuilder builder, string connectionStringName, string databaseName = null) where TContext : DbContext
         {
             builder.Register(componentContext =>
-                {
-                    var serviceProvider = componentContext.Resolve<IServiceProvider>();
-                    var configuration = componentContext.Resolve<IConfiguration>();
-                    var dbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
-                    var optionsBuilder = new DbContextOptionsBuilder<TContext>(dbContextOptions)
-                        .UseApplicationServiceProvider(serviceProvider)
-                        .EnableDetailedErrors()
-                        .EnableSensitiveDataLogging()
-                        .EnableServiceProviderCaching()
-                        .UseSqlServer(configuration.GetConnectionString(connectionStringName), options =>
-                        {
-                            options.UseRelationalNulls();
-                            options.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
-                        })
-                        // .UseSqlServer(Configuration.GetConnectionString(connectionStringName),
-                        //               serverOptions => serverOptions.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null))
-                        .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)));
+                   {
+                       var serviceProvider  = componentContext.Resolve<IServiceProvider>();
+                       var configuration    = componentContext.Resolve<IConfiguration>();
+                       var dbContextOptions = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
+                       var optionsBuilder = new DbContextOptionsBuilder<TContext>(dbContextOptions)
+                                            .UseApplicationServiceProvider(serviceProvider)
+                                            .EnableDetailedErrors()
+                                            .EnableSensitiveDataLogging()
+                                            .EnableServiceProviderCaching()
+                                            .UseSqlServer(configuration.GetConnectionString(connectionStringName),
+                                                          options =>
+                                                          {
+                                                              options.UseRelationalNulls();
+                                                              options.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+                                                          })
 
-                    if (databaseName != null)
-                    {
-                        optionsBuilder.UseInMemoryDatabase(databaseName: databaseName);
-                    }
+                                            // .UseSqlServer(Configuration.GetConnectionString(connectionStringName),
+                                            //               serverOptions => serverOptions.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null))
+                                            .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)));
 
-                    return optionsBuilder.Options;
-                }).As<DbContextOptions<TContext>>()
-                .InstancePerLifetimeScope();
+                       if (databaseName != null) optionsBuilder.UseInMemoryDatabase(databaseName);
+
+                       return optionsBuilder.Options;
+                   })
+                   .As<DbContextOptions<TContext>>()
+                   .InstancePerLifetimeScope();
 
             builder.Register(context => context.Resolve<DbContextOptions<TContext>>())
-                .As<DbContextOptions>()
-                .InstancePerLifetimeScope();
+                   .As<DbContextOptions>()
+                   .InstancePerLifetimeScope();
 
             builder.RegisterType<TContext>()
-                .AsSelf()
-                .InstancePerLifetimeScope();
+                   .AsSelf()
+                   .InstancePerLifetimeScope();
 
-            builder.RegisterType<UnitOfWork<TContext>>().As<IUnitOfWork<TContext>>().As<IUnitOfWork>().InstancePerLifetimeScope();
+            builder.RegisterType<UnitOfWork<TContext>>()
+                   .As<IUnitOfWork<TContext>>()
+                   .As<IUnitOfWork>()
+                   .InstancePerLifetimeScope();
         }
     }
 }

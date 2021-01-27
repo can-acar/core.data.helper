@@ -20,7 +20,6 @@ namespace Core.Data.Helper.Infrastructures
             Context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-
         public async Task ExecuteAsync(Func<Task> action)
         {
             var strategy = DbContext.Database.CreateExecutionStrategy();
@@ -67,7 +66,6 @@ namespace Core.Data.Helper.Infrastructures
         {
             ContextTransaction?.Commit();
         }
-
 
         public void Dispose()
         {
