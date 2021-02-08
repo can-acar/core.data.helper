@@ -60,7 +60,6 @@ namespace Core.Data.Helper.Extensions
                                                                                                            options.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
                                                                                                        })
                                                                                          .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)))))
-
                 services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
 
             services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
@@ -108,7 +107,10 @@ namespace Core.Data.Helper.Extensions
                    .AsSelf()
                    .InstancePerLifetimeScope();
 
-            builder.RegisterType<UnitOfWork<TContext>>().As<IUnitOfWork<TContext>>().As<IUnitOfWork>().InstancePerLifetimeScope();
+            builder.RegisterType<UnitOfWork<TContext>>()
+                   .As<IUnitOfWork<TContext>>()
+                   .As<IUnitOfWork>()
+                   .InstancePerLifetimeScope();
         }
     }
 }

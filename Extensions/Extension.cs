@@ -55,8 +55,7 @@ namespace Core.Data.Helper.Extensions
 
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
-            foreach (var element in source)
-                action(element);
+            foreach (var element in source) action(element);
         }
     }
 }

@@ -23,8 +23,11 @@ namespace Core.Data.Helper.Infrastructures
             Entity  = context.Set<TEntity>();
         }
 
-
-        protected virtual IEnumerator<TEntity> GetEnumerator() => DbSet.AsEnumerable().GetEnumerator();
+        protected virtual IEnumerator<TEntity> GetEnumerator()
+        {
+            return DbSet.AsEnumerable()
+                        .GetEnumerator();
+        }
 
         /// <summary>
         /// </summary>
@@ -40,12 +43,18 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns>
         ///     @IQueryable
         /// </returns>
-        public virtual IQueryable<TEntity> AsQueryable() => DbSet.AsQueryable();
+        public virtual IQueryable<TEntity> AsQueryable()
+        {
+            return DbSet.AsQueryable();
+        }
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public virtual Task<IQueryable<TEntity>> AsQueryableAsync() => Task.FromResult(DbSet.AsQueryable());
+        public virtual Task<IQueryable<TEntity>> AsQueryableAsync()
+        {
+            return Task.FromResult(DbSet.AsQueryable());
+        }
 
         /// <summary>
         /// </summary>
@@ -169,8 +178,11 @@ namespace Core.Data.Helper.Infrastructures
         /// </summary>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public virtual IQueryable<TEntity> GetAll(params Expression<Func<TEntity, object>>[] includeProperties) =>
-            PerformInclusions(includeProperties).AsQueryable();
+        public virtual IQueryable<TEntity> GetAll(params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return PerformInclusions(includeProperties)
+                .AsQueryable();
+        }
 
         /// <summary>
         /// </summary>
@@ -178,7 +190,8 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual Task<IQueryable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includeProperties)
         {
-            return Task.FromResult(PerformInclusions(includeProperties).AsQueryable());
+            return Task.FromResult(PerformInclusions(includeProperties)
+                                       .AsQueryable());
         }
 
         /// <summary>
@@ -303,8 +316,12 @@ namespace Core.Data.Helper.Infrastructures
         /// <summary>
         /// </summary>
         /// <returns></returns>
+
         // DbSet = DbContext.Set<TEntity>();
-        public virtual IQueryable<TEntity> AsNoTracking() => DbSet.AsNoTracking();
+        public virtual IQueryable<TEntity> AsNoTracking()
+        {
+            return DbSet.AsNoTracking();
+        }
 
         /// <summary>
         /// </summary>
@@ -327,12 +344,10 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="match"></param>
         public virtual void Delete(Expression<Func<TEntity, bool>> match)
         {
-            var ıtems = DbSet.Where(match).AsQueryable();
+            var ıtems = DbSet.Where(match)
+                             .AsQueryable();
 
-            foreach (var ıtem in ıtems)
-            {
-                DbSet.Remove(ıtem);
-            }
+            foreach (var ıtem in ıtems) DbSet.Remove(ıtem);
         }
 
         /// <summary>
@@ -343,14 +358,14 @@ namespace Core.Data.Helper.Infrastructures
         public virtual Task DeleteAsync(Expression<Func<TEntity, bool>> where)
         {
             //DbSet = DbContext.Set<TEntity>();
-            var ıtems = DbSet.Where(where).AsQueryable();
+            var ıtems = DbSet.Where(where)
+                             .AsQueryable();
 
             foreach (var ıtem in ıtems)
-            {
+
                 // if (Context.Entry(Item).State == EntityState.Detached)
                 //     DbSet.Attach(Item);
                 DbSet.Remove(ıtem);
-            }
 
             return Task.FromResult(ıtems);
         }
@@ -415,6 +430,7 @@ namespace Core.Data.Helper.Infrastructures
             // Context.Entry(entity)
             //     .State = EntityState.Modified;
             Context.Attach(entity);
+
             //DbSet.Add(entity);
             // DbSet.Update(entity);
         }
@@ -439,15 +455,14 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual TEntity Update(TEntity entity, Expression<Func<TEntity, bool>> match)
         {
-            if (entity == null)
-                return null;
+            if (entity == null) return null;
 
             var existing = DbSet.SingleOrDefault(match);
 
-            if (existing == null)
-                return new TEntity();
+            if (existing == null) return new TEntity();
 
-            Context.Entry(entity).State = EntityState.Modified;
+            Context.Entry(entity)
+                   .State = EntityState.Modified;
 
             DbSet.Update(entity);
 
@@ -457,18 +472,27 @@ namespace Core.Data.Helper.Infrastructures
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public int SaveChanges() => Context.SaveChanges();
+        public int SaveChanges()
+        {
+            return Context.SaveChanges();
+        }
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public Task<int> SaveChangesAsync() => Context.SaveChangesAsync();
+        public Task<int> SaveChangesAsync()
+        {
+            return Context.SaveChangesAsync();
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public EntityEntry<TEntity> Entry(TEntity entity) => Context.Entry(entity);
+        public EntityEntry<TEntity> Entry(TEntity entity)
+        {
+            return Context.Entry(entity);
+        }
 
         /// <summary>
         /// </summary>
@@ -499,21 +523,18 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual async Task<List<TEntity>> RawSql(string sqlQuery, Func<DbDataReader, TEntity> map)
         {
-            await using var command = Context.Database.GetDbConnection().CreateCommand();
+            await using var command = Context.Database.GetDbConnection()
+                                             .CreateCommand();
             command.CommandText = sqlQuery;
             command.CommandType = CommandType.Text;
 
-            if (!await Context.Database.CanConnectAsync())
-                await Context.Database.OpenConnectionAsync();
+            if (!await Context.Database.CanConnectAsync()) await Context.Database.OpenConnectionAsync();
 
 
             await using var result   = await command.ExecuteReaderAsync();
             var             entities = new List<TEntity>();
 
-            while (await result.ReadAsync())
-            {
-                entities.Add(map(result));
-            }
+            while (await result.ReadAsync()) entities.Add(map(result));
 
             return entities;
         }
@@ -529,7 +550,8 @@ namespace Core.Data.Helper.Infrastructures
         /// </returns>
         public virtual async Task<List<TEntity>> SqlQuery(Func<DbDataReader, TEntity> entity, string sqlQuery, params object[] parameters)
         {
-            await using var command = Context.Database.GetDbConnection().CreateCommand();
+            await using var command = Context.Database.GetDbConnection()
+                                             .CreateCommand();
 
             command.CommandText = sqlQuery;
             command.CommandType = CommandType.Text;
@@ -538,17 +560,13 @@ namespace Core.Data.Helper.Infrastructures
                 foreach (var p in parameters)
                     command.Parameters.Add(p);
 
-            if (!await Context.Database.CanConnectAsync())
-                await Context.Database.OpenConnectionAsync();
+            if (!await Context.Database.CanConnectAsync()) await Context.Database.OpenConnectionAsync();
 
             await using var result = await command.ExecuteReaderAsync();
 
             var entities = new List<TEntity>();
 
-            while (await result.ReadAsync())
-            {
-                entities.Add(entity(result));
-            }
+            while (await result.ReadAsync()) entities.Add(entity(result));
 
             return entities;
         }
@@ -566,24 +584,15 @@ namespace Core.Data.Helper.Infrastructures
         {
             IQueryable<TEntity> query = DbSet;
 
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
+            if (filter != null) query = query.Where(filter);
 
-            foreach (var includeProperty in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
-            {
-                query = query.Include(includeProperty);
-            }
+            foreach (var includeProperty in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries)) query = query.Include(includeProperty);
 
             if (orderBy != null)
-            {
-                return orderBy(query).ToList();
-            }
+                return orderBy(query)
+                    .ToList();
             else
-            {
                 return query.ToList();
-            }
         }
     }
 }

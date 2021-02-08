@@ -12,7 +12,10 @@ namespace Core.Data.Helper.Extensions
 {
     public static class QueryableExtensions
     {
-        public static ProjectionExpression<TSource> Project<TSource>(this IQueryable<TSource> source) => new ProjectionExpression<TSource>(source);
+        public static ProjectionExpression<TSource> Project<TSource>(this IQueryable<TSource> source)
+        {
+            return new(source);
+        }
 
         public static IQueryable<TResult> Select<TEntity, TResult>(this IRepository<TEntity> source,
                                                                    Expression<Func<TEntity, TResult>> query) where TEntity : class
@@ -118,10 +121,7 @@ namespace Core.Data.Helper.Extensions
 
         public static IQueryable<T> Select<T>(this IQueryable<T> source, string columnName)
         {
-            if (string.IsNullOrEmpty(columnName))
-            {
-                return source;
-            }
+            if (string.IsNullOrEmpty(columnName)) return source;
 
             var parameter = Expression.Parameter(source.ElementType, "p");
             var property  = Expression.Property(parameter, columnName);
@@ -136,7 +136,8 @@ namespace Core.Data.Helper.Extensions
                                                               source.Expression,
                                                               Expression.Quote(lambda));
 
-            return source.Provider.CreateQuery<T>(methodCallExpression).AsQueryable();
+            return source.Provider.CreateQuery<T>(methodCallExpression)
+                         .AsQueryable();
         }
 
         private static class PropertyAccessorCache<T> where T : class
@@ -192,7 +193,8 @@ namespace Core.Data.Helper.Extensions
                                        matchExpression,
                                        pattern);
 
-            return source.Where(Expression.Lambda<Func<T, bool>>(expr, param)).AsQueryable();
+            return source.Where(Expression.Lambda<Func<T, bool>>(expr, param))
+                         .AsQueryable();
         }
 
         public static IQueryable<T> Where<T>(this IQueryable<T> source, string propertyName, object propertyValue, out bool success) where T : class
@@ -200,8 +202,7 @@ namespace Core.Data.Helper.Extensions
             success = false;
             var mba = PropertyAccessorCache<T>.Get(propertyName);
 
-            if (mba == null)
-                return source;
+            if (mba == null) return source;
 
 
             object value;
@@ -263,8 +264,7 @@ namespace Core.Data.Helper.Extensions
 
         public static IQueryable<T> SortBy<T>(this IQueryable<T> source, IEnumerable<string> columnNames)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
 
             var queryExpr = source.Expression;
@@ -293,8 +293,7 @@ namespace Core.Data.Helper.Extensions
 
         public static IQueryable<T> SortBy<T>(this IQueryable<T> source, IList<IDictionary<string, string>> orders)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
 
             var entityType = source.ElementType;

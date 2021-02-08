@@ -10,7 +10,7 @@ namespace Core.Data.Helper.Extensions
     public class ProjectionExpression<TSource>
     {
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly Dictionary<string, Expression> ExpressionCache = new Dictionary<string, Expression>();
+        private static readonly Dictionary<string, Expression> ExpressionCache = new();
 
         private readonly IQueryable<TSource> Source;
 
@@ -65,11 +65,9 @@ namespace Core.Data.Helper.Extensions
         {
             IEnumerable<PropertyInfo> propertyInfos = sourceProperties as PropertyInfo[] ?? sourceProperties.ToArray();
 
-            var sourceProperty =
-                propertyInfos.FirstOrDefault(src => src.Name == destinationProperty.Name);
+            var sourceProperty = propertyInfos.FirstOrDefault(src => src.Name == destinationProperty.Name);
 
-            if (sourceProperty != null)
-                return Expression.Bind(destinationProperty, Expression.Property(parameterExpression, sourceProperty));
+            if (sourceProperty != null) return Expression.Bind(destinationProperty, Expression.Property(parameterExpression, sourceProperty));
 
             var propertyNames = SplitCamelCase(destinationProperty.Name);
             #pragma warning disable CS8603
@@ -103,7 +101,9 @@ namespace Core.Data.Helper.Extensions
 
         private static string[] SplitCamelCase(string input)
         {
-            return Regex.Replace(input, "([A-Z])", " $1", RegexOptions.Compiled).Trim().Split(' ');
+            return Regex.Replace(input, "([A-Z])", " $1", RegexOptions.Compiled)
+                        .Trim()
+                        .Split(' ');
         }
     }
 }
