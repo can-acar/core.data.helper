@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Core.Data.Helper.Infrastructures
 {
-#pragma warning disable CS8603
+    #pragma warning disable CS8603
     public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork where TContext : DbContext, IDisposable
     {
         private readonly TContext Context;

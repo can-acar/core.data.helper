@@ -7,7 +7,7 @@ namespace Core.Data.Helper.Infrastructures
         void Remove(string key);
         void Store(string key, object value, int minutesValidFor);
     }
-#pragma warning disable CS8603
+    #pragma warning disable CS8603
     public class NullCache : ICache
     {
         public void Clear()
