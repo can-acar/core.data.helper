@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Core.Data.Helper.Extensions
 {
-#pragma warning disable CS8603
+    #pragma warning disable CS8603
     public static class Extension
     {
         private static IEnumerable<TList> Split<TList, T>(this TList value, int countOfEachPart)
@@ -27,7 +27,7 @@ namespace Core.Data.Helper.Extensions
 
             return result.Cast<TList>();
         }
-#pragma warning disable CS8603, notnull
+        #pragma warning disable CS8603, notnull
         public static IEnumerable<IDictionary<TKey, TValue>> Split<TKey, TValue>(this IDictionary<TKey, TValue> value,
                                                                                  int countOfEachPart)
         {

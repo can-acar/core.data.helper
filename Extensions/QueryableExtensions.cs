@@ -39,8 +39,7 @@ namespace Core.Data.Helper.Extensions
         }
 
         public static IQueryable<TResult> InnerJoin<TSource, TInner, TKey, TResult>(this IRepository<TSource> source,
-                                                                                    IRepository<TInner> other,
-                                                                                    Func<TSource, TKey> func,
+                                                                                    IRepository<TInner> other, Func<TSource, TKey> func,
                                                                                     Func<TInner, TKey> innerkey,
                                                                                     Func<TSource, TInner, TResult> res) where TSource : class where TInner : class
         {
@@ -76,8 +75,8 @@ namespace Core.Data.Helper.Extensions
                                    outerKeySelector,
                                    innerKeySelector,
                                    (o, ei) => ei
-                                              .Select(i => resultSelector(o, i))
-                                              .DefaultIfEmpty(resultSelector(o, default)),
+                                             .Select(i => resultSelector(o, i))
+                                             .DefaultIfEmpty(resultSelector(o, default)),
                                    comparer)
                         .SelectMany(oi => oi)
                         .AsQueryable();
@@ -93,10 +92,8 @@ namespace Core.Data.Helper.Extensions
             return outer.LeftJoin(inner, outerKeySelector, innerKeySelector, resultSelector, default);
         }
 
-        public static IQueryable<TEntity> Pagination<TEntity>(this IRepository<TEntity> source,
-                                                              int currentPage,
-                                                              int limit,
-                                                              out int rowCount) where TEntity : class
+        public static IQueryable<TEntity> Pagination<TEntity>(this IRepository<TEntity> source, int currentPage,
+                                                              int limit, out int rowCount) where TEntity : class
         {
             rowCount = source.Count();
 
@@ -111,9 +108,9 @@ namespace Core.Data.Helper.Extensions
                                                                      int limit) where TEntity : class
         {
             return await source
-                         .Skip((currentPage - 1) * limit)
-                         .Take(limit)
-                         .ToArrayAsync();
+                        .Skip((currentPage - 1) * limit)
+                        .Take(limit)
+                        .ToArrayAsync();
         }
 
         public static Task<IQueryable<TSource>> WhereAsync<TSource>(this IQueryable<TSource> source,

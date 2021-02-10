@@ -25,7 +25,7 @@ namespace Core.Data.Helper.Extensions
 
             return Source.Select(queryExpression);
         }
-#pragma warning disable CS8603
+        #pragma warning disable CS8603
         private static Expression<Func<TSource, TDest>> GetCachedExpression<TDest>()
         {
             var key = GetCacheKey<TDest>();
@@ -37,10 +37,9 @@ namespace Core.Data.Helper.Extensions
 
         private static Expression<Func<TSource, TDest>> BuildExpression<TDest>()
         {
-            var sourceProperties = typeof(TSource).GetProperties();
-            var destinationProperties = typeof(TDest).GetProperties()
-                                                     .Where(dest => dest.CanWrite);
-            var parameterExpression = Expression.Parameter(typeof(TSource), "src");
+            var sourceProperties      = typeof(TSource).GetProperties();
+            var destinationProperties = typeof(TDest).GetProperties().Where(dest => dest.CanWrite);
+            var parameterExpression   = Expression.Parameter(typeof(TSource), "src");
 
             var propertyInfos = destinationProperties.ToList();
             var bindings = propertyInfos.Select(destinationProperty => BuildBinding(parameterExpression, destinationProperty, sourceProperties))
@@ -49,8 +48,8 @@ namespace Core.Data.Helper.Extensions
             Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), bindings), parameterExpression);
 
             bindings = propertyInfos
-                       .Select(destinationProperty => BuildBinding(parameterExpression, destinationProperty, sourceProperties))
-                       .Where(binding => binding != null);
+                      .Select(destinationProperty => BuildBinding(parameterExpression, destinationProperty, sourceProperties))
+                      .Where(binding => binding != null);
 
             var expressionLambda = Expression.Lambda<Func<TSource, TDest>>(Expression.MemberInit(Expression.New(typeof(TDest)), bindings),
                                                                            parameterExpression);
@@ -61,7 +60,7 @@ namespace Core.Data.Helper.Extensions
 
             return expressionLambda;
         }
-#pragma warning restore CS8603
+        #pragma warning restore CS8603
         private static MemberAssignment BuildBinding(Expression parameterExpression, MemberInfo destinationProperty, IEnumerable<PropertyInfo> sourceProperties)
         {
             IEnumerable<PropertyInfo> propertyInfos = sourceProperties as PropertyInfo[] ?? sourceProperties.ToArray();
@@ -71,15 +70,16 @@ namespace Core.Data.Helper.Extensions
             if (sourceProperty != null) return Expression.Bind(destinationProperty, Expression.Property(parameterExpression, sourceProperty));
 
             var propertyNames = SplitCamelCase(destinationProperty.Name);
-#pragma warning disable CS8603
-            if (propertyNames.Length != 2) return null;
+            #pragma warning disable CS8603
+            if (propertyNames.Length != 2)
+                return null;
 
             propertyNames = SplitCamelCase(destinationProperty.Name);
-#pragma warning disable CS8603
+            #pragma warning disable CS8603
             if (propertyNames.Length != 2) return null;
             {
                 sourceProperty = propertyInfos.FirstOrDefault(src => src.Name == propertyNames[0]);
-#pragma warning disable CS8603
+                #pragma warning disable CS8603
                 if (sourceProperty == null) return null;
                 {
                     var sourceChildProperty = sourceProperty.PropertyType.GetProperties()
@@ -87,11 +87,11 @@ namespace Core.Data.Helper.Extensions
 
                     return Expression.Bind(destinationProperty,
                                            Expression
-                                               .Property(Expression.Property(parameterExpression, sourceProperty),
-                                                         sourceChildProperty ?? throw new ArgumentNullException()));
+                                              .Property(Expression.Property(parameterExpression, sourceProperty),
+                                                        sourceChildProperty ?? throw new ArgumentNullException()));
                 }
             }
-#pragma warning disable CS8603
+            #pragma warning disable CS8603
         }
 
         private static string GetCacheKey<TDest>()

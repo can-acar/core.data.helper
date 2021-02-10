@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace Core.Data.Helper.Extensions
 {
-#pragma warning disable CS8603
+    #pragma warning disable CS8603
     public static class ObjectExtensions
     {
         public static T GetPropertyValue<T>(this object obj, string property)
@@ -20,7 +20,7 @@ namespace Core.Data.Helper.Extensions
                           .GetProperty(propertyName)
                           ?.GetValue(obj, null);
         }
-#pragma warning disable CS8603
+        #pragma warning disable CS8603
 
         public static string GetPropertyName(this object obj, Expression<Func<object, object>> property)
         {
