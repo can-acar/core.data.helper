@@ -423,7 +423,6 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual Task InsertAsync(TEntity entity)
         {
-            //DbSet = DbContext.Set<TEntity>();
             return Task.FromResult(DbSet.Add(entity));
         }
 
@@ -433,9 +432,7 @@ namespace Core.Data.Helper.Infrastructures
         /// <param name="entity"></param>
         public virtual void Update(TEntity entity)
         {
-
             Context.Attach(entity);
-
         }
 
         /// <summary>
@@ -445,7 +442,6 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual Task UpdateAsync(TEntity entity)
         {
-            // DbSet = DbContext.Set<TEntity>();
             Context.Entry(entity)
                 .State = EntityState.Modified;
 
