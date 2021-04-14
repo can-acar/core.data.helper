@@ -107,8 +107,7 @@ namespace Core.Data.Helper.Infrastructures
         public virtual Task<int> CountAsync(params Expression<Func<TEntity, object>>[] includeProperties) =>
             PerformInclusions(includeProperties)
                 .CountAsync();
-
-
+     
         /// <summary>
         /// </summary>
         /// <param name="includeProperties"></param>
@@ -538,15 +537,14 @@ namespace Core.Data.Helper.Infrastructures
         /// <returns></returns>
         public virtual async Task<List<TEntity>> RawSql(string sqlQuery, Func<DbDataReader, TEntity> map)
         {
-            await using var command = Context.Database.GetDbConnection()
-                .CreateCommand();
+            await using var command = Context.Database.GetDbConnection().CreateCommand();
             command.CommandText = sqlQuery;
             command.CommandType = CommandType.Text;
 
             if (!await Context.Database.CanConnectAsync()) await Context.Database.OpenConnectionAsync();
-
-
+           
             await using var result = await command.ExecuteReaderAsync();
+            
             var entities = new List<TEntity>();
 
             while (await result.ReadAsync()) entities.Add(map(result));
