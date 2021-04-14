@@ -216,8 +216,7 @@ namespace Core.Data.Helper.Extensions
             {
                 return source;
             }
-
-
+                          
             var eqe = Expression.Equal(mba.Body, Expression.Constant(value, mba.ReturnType));
 
             var queryExpr = Expression.Lambda(eqe, mba.Parameters[0]);
