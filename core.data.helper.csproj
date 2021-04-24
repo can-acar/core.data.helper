@@ -32,6 +32,6 @@
         <PackageReference Include="Serilog.Enrichers.AspNetCore" Version="1.0.0" />
         <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
         <PackageReference Include="Serilog.Exceptions" Version="6.1.0" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.1" />
     </ItemGroup>
 </Project>
