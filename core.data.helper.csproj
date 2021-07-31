@@ -3,7 +3,7 @@
         <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
         <Version>3.0.1</Version>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <LangVersion>9</LangVersion>
+        <LangVersion>default</LangVersion>
         <Description>Can Acar</Description>
         <Copyright>Can Acar</Copyright>
         <PackageProjectUrl>https://github.com/51tharea</PackageProjectUrl>
@@ -32,6 +32,6 @@
         <PackageReference Include="Serilog.Enrichers.AspNetCore" Version="1.0.0" />
         <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
         <PackageReference Include="Serilog.Exceptions" Version="6.1.0" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.11.0" />
     </ItemGroup>
 </Project>
