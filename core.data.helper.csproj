@@ -1,37 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
-        <Version>3.0.1</Version>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <LangVersion>9</LangVersion>
-        <Description>Can Acar</Description>
-        <Copyright>Can Acar</Copyright>
-        <PackageProjectUrl>https://github.com/51tharea</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/51tharea</PackageLicenseUrl>
-        <RepositoryUrl>https://github.com/51tharea</RepositoryUrl>
-        <IsPackable>false</IsPackable>
+        <TargetFramework>net6.0</TargetFramework>
         <Nullable>disable</Nullable>
-        <AssemblyName>Core.Data.Helper</AssemblyName>
-        <RootNamespace>Core.Data.Helper</RootNamespace>
-        <TargetFramework>netcoreapp5.0</TargetFramework>
-
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>default</LangVersion>
+        <OutputType>Library</OutputType>
+        <AssemblyName>CoreEntityHelper</AssemblyName>
+        <RootNamespace>CoreEntityHelper</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="5.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.5" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-        <PackageReference Include="NewRelic.LogEnrichers.Serilog" Version="1.0.1" />
-        <PackageReference Include="Serilog" Version="2.10.0" />
-        <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
-        <PackageReference Include="Serilog.Enrichers.AspNetCore" Version="1.0.0" />
+        <PackageReference Include="Autofac" Version="6.4.0" />
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="6.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="6.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.8">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="Serilog" Version="2.11.0" />
+        <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
+        <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
         <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
-        <PackageReference Include="Serilog.Exceptions" Version="6.1.0" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.11.0" />
+        <PackageReference Include="Serilog.Extensions.Hosting" Version="5.0.1" />
+        <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
+        <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
+        <PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+        <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     </ItemGroup>
 </Project>
