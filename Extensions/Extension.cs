@@ -5,7 +5,7 @@ public static class Extension
     private static IEnumerable<TList> Split<TList, T>(this TList value, int countOfEachPart)
         where TList : IEnumerable<T>
     {
-        var cnt    = value.Count() / countOfEachPart;
+        var cnt = value.Count() / countOfEachPart;
         var result = new List<IEnumerable<T>>();
 
         for (var I = 0; I <= cnt; I++)

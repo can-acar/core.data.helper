@@ -73,7 +73,7 @@ public static class DbContextExtensions
                              })
                          .ConfigureWarnings(c => c.Log((RelationalEventId.CommandExecuting, LogLevel.Debug)))))
             services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
-            
+
         services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
 
         return services;

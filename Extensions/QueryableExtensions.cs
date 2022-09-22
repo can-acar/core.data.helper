@@ -10,7 +10,7 @@ public static class QueryableExtensions
 {
     public static ProjectionExpression<TSource> Project<TSource>(this IQueryable<TSource> source)
     {
-        return new(source);
+        return new ProjectionExpression<TSource>(source);
     }
 
     public static IQueryable<TResult> Select<TEntity, TResult>(this IRepository<TEntity> source,
@@ -35,7 +35,8 @@ public static class QueryableExtensions
     }
 
     public static IQueryable<TResult> InnerJoin<TSource, TInner, TKey, TResult>(this IRepository<TSource> source,
-        IRepository<TInner> other, Func<TSource, TKey> func,
+        IRepository<TInner> other,
+        Func<TSource, TKey> func,
         Func<TInner, TKey> innerkey,
         Func<TSource, TInner, TResult> res) where TSource : class where TInner : class
     {
@@ -88,8 +89,10 @@ public static class QueryableExtensions
         return outer.LeftJoin(inner, outerKeySelector, innerKeySelector, resultSelector, default);
     }
 
-    public static IQueryable<TEntity> Pagination<TEntity>(this IRepository<TEntity> source, int currentPage,
-        int limit, out int rowCount) where TEntity : class
+    public static IQueryable<TEntity> Pagination<TEntity>(this IRepository<TEntity> source,
+        int currentPage,
+        int limit,
+        out int rowCount) where TEntity : class
     {
         rowCount = source.Count();
 
@@ -212,7 +215,7 @@ public static class QueryableExtensions
         {
             return source;
         }
-                          
+
         var eqe = Expression.Equal(mba.Body, Expression.Constant(value, mba.ReturnType));
 
         var queryExpr = Expression.Lambda(eqe, mba.Parameters[0]);
@@ -327,7 +330,7 @@ public static class QueryableExtensions
                 resultExpression,
                 Expression.Quote(orderByExpression));
         }
-            
+
         return source.Provider.CreateQuery<T>(resultExpression)
             .AsQueryable();
     }
