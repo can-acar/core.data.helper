@@ -1,30 +1,27 @@
-using System;
 using System.Data;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Core.Data.Helper.Infrastructures
+namespace CoreEntityHelper.Infrastructures;
+
+public interface IUnitOfWork<out TContext> : IUnitOfWork where TContext : DbContext
 {
-    public interface IUnitOfWork<out TContext> : IUnitOfWork where TContext : DbContext
-    {
-        TContext DbContext { get; }
-    }
+    TContext DbContext { get; }
+}
 
-    public interface IUnitOfWork : IDisposable
-    {
-        IDbContextTransaction BeginTransaction();
+public interface IUnitOfWork : IDisposable
+{
+    IDbContextTransaction BeginTransaction();
 
-        IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel);
+    IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel);
 
-        IRepository<TEntity> Repository<TEntity>() where TEntity : class;
+    IRepository<TEntity> Repository<TEntity>() where TEntity : class;
 
-        void Rollback();
+    void Rollback();
 
-        int SaveChanges();
+    int SaveChanges();
 
-        Task<int> SaveChangesAsync();
+    Task<int> SaveChangesAsync();
 
-        void Commit();
-    }
+    void Commit();
 }
