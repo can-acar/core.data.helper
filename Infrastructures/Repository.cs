@@ -31,7 +31,8 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <returns></returns>
     private IQueryable<TEntity> PerformInclusions(params Expression<Func<TEntity, object>>[] includeProperties)
     {
-        return includeProperties.Aggregate<Expression<Func<TEntity, object>>, IQueryable<TEntity>>(DbSet, (current, includeProperty) => current.Include(includeProperty));
+        return includeProperties.Aggregate<Expression<Func<TEntity, object>>, IQueryable<TEntity>>(DbSet,
+            (current, includeProperty) => current.Include(includeProperty));
     }
 
     /// <summary>
@@ -129,7 +130,8 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual IQueryable<TEntity> Find(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual IQueryable<TEntity> Find(Expression<Func<TEntity, bool>> where,
+        params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .Where(where);
@@ -163,7 +165,8 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual Task<TEntity> FirstAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual Task<TEntity> FirstAsync(Expression<Func<TEntity, bool>> where,
+        params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .FirstAsync(where);
@@ -174,7 +177,8 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual TEntity FirstOrDefault(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual TEntity FirstOrDefault(Expression<Func<TEntity, bool>> where,
+        params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .FirstOrDefault(where);
@@ -185,7 +189,8 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> where,
+        params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .FirstOrDefaultAsync(where);
@@ -236,7 +241,8 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> where,
+        params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .SingleAsync(where);
@@ -247,7 +253,8 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual TEntity SingleOrDefault(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual TEntity SingleOrDefault(Expression<Func<TEntity, bool>> where,
+        params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .SingleOrDefault(where);
@@ -258,7 +265,8 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> where,
+        params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .SingleOrDefaultAsync(where);
@@ -269,7 +277,8 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> where,
+        params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .Where(where);
@@ -319,7 +328,10 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <returns>
     ///IQueryable<TEntity>
     /// </returns>
-    public virtual IQueryable<TEntity> Pagination(int currentPage, int limit, out int rowsCount, params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual IQueryable<TEntity> Pagination(int currentPage,
+        int limit,
+        out int rowsCount,
+        params Expression<Func<TEntity, object>>[] includeProperties)
     {
         rowsCount = PerformInclusions(includeProperties)
             .Count();
@@ -338,7 +350,10 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="rowsCount"></param>
     /// <param name="includeProperties"></param>
     /// <returns TEntity="">IQueryable<TEntity></returns>
-    public virtual Task<IQueryable<TEntity>> PaginationAsync(int currentPage, int limit, Func<int, int> rowsCount, params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual Task<IQueryable<TEntity>> PaginationAsync(int currentPage,
+        int limit,
+        Func<int, int> rowsCount,
+        params Expression<Func<TEntity, object>>[] includeProperties)
     {
         var count = PerformInclusions(includeProperties)
             .Count();
@@ -629,13 +644,16 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="orderBy"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, string includeProperties = "")
+    public virtual IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter = null,
+        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+        string includeProperties = "")
     {
         IQueryable<TEntity> query = DbSet;
 
         if (filter != null) query = query.Where(filter);
 
-        foreach (var includeProperty in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries)) query = query.Include(includeProperty);
+        foreach (var includeProperty in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
+            query = query.Include(includeProperty);
 
         if (orderBy != null)
             return orderBy(query)

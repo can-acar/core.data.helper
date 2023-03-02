@@ -15,7 +15,7 @@ public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork wh
     public UnitOfWork(TContext context)
     {
         DbContext = context ?? throw new ArgumentNullException(nameof(context));
-        ContextTransaction = DbContext.Database.BeginTransaction();
+        ContextTransaction = DbContext.Database.CurrentTransaction;
     }
 
     public async Task ExecuteAsync(Func<Task> action)
