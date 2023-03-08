@@ -119,7 +119,7 @@ public static class DbContextExtensions
             options.EnableDetailedErrors()
                 .EnableSensitiveDataLogging()
                 .EnableServiceProviderCaching()
-                .UseSqlServer(configuration.GetConnectionString(connectionStringName),
+                .UseSqlServer(configuration.GetConnectionString(connectionStringName)!,
                     options =>
                     {
                         options.UseRelationalNulls();
