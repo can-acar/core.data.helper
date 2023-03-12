@@ -24,7 +24,8 @@ public static class QueryableExtensions
         params Expression<Func<TEntity, TProperty>>[] navigationPropertyPath)
         where TEntity : class
     {
-        return navigationPropertyPath.Aggregate<Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(source.Entity, (entities, expression) => entities.Include(expression));
+        return navigationPropertyPath.Aggregate<Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(source.Entity,
+            (entities, expression) => entities.Include(expression));
     }
 
     public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(this IRepository<TEntity> source,
@@ -34,46 +35,35 @@ public static class QueryableExtensions
         return source.Entity.Include(navigationPropertyPath);
     }
 
-    public static IQueryable<TResult> InnerJoin<TSource, TInner, TKey, TResult>(this IRepository<TSource> source,
-        IRepository<TInner> other,
-        Func<TSource, TKey> func,
-        Func<TInner, TKey> innerkey,
-        Func<TSource, TInner, TResult> res) where TSource : class where TInner : class
+    public static IQueryable<TResult> InnerJoin<TLeftSource, TRightSource, TQueryKey, TResult>(this IRepository<TLeftSource> source,
+        IRepository<TRightSource> inner,
+        Expression<Func<TLeftSource, TQueryKey>> left,
+        Expression<Func<TRightSource, TQueryKey>> right,
+        Expression<Func<TLeftSource, TRightSource, TResult>> result) where TLeftSource : class where TRightSource : class
     {
-        return from f in source.AsQueryable()
-            join b in other.AsQueryable() on func.Invoke(f) equals innerkey.Invoke(b) into g
-            from result in g
-            select res.Invoke(f, result);
+        return source.AsQueryable()
+            .Join(inner.AsQueryable(),
+                left,
+                right,
+                result);
     }
 
-    public static IQueryable<TResult> LeftOuterJoin<TSource, TInner, TKey, TResult>(this IRepository<TSource> source,
-        IRepository<TInner> other,
-        Func<TSource, TKey> func,
-        Func<TInner, TKey> innerkey,
-        Func<TSource, TInner, TResult> res) where TSource : class where TInner : class
-    {
-        return from f in source.AsQueryable()
-            join b in other.AsQueryable() on func.Invoke(f) equals innerkey.Invoke(b) into g
-            from result in g.DefaultIfEmpty()
-            select res.Invoke(f, result);
-    }
 
-    public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer,
-        IRepository<TInner> inner,
-        Func<TOuter, TKey> outerKeySelector,
-        Func<TInner, TKey> innerKeySelector,
-        Func<TOuter, TInner, TResult>
-            resultSelector,
-        IEqualityComparer<TKey> comparer) where TOuter : class where TInner : class
+    public static IQueryable<TResult> LeftJoin<TLeftSource, TRightSource, TQueryKey, TResult>(this IRepository<TLeftSource> source,
+        IRepository<TRightSource> inner,
+        Func<TLeftSource, TQueryKey> left,
+        Func<TRightSource, TQueryKey> right,
+        Func<TLeftSource, TRightSource, TResult> result,
+        IEqualityComparer<TQueryKey> comparer) where TLeftSource : class where TRightSource : class
     {
-        return outer.AsQueryable()
+        return source.AsQueryable()
             .AsEnumerable()
             .GroupJoin(inner.AsQueryable(),
-                outerKeySelector,
-                innerKeySelector,
+                left,
+                right,
                 (o, ei) => ei
-                    .Select(i => resultSelector(o, i))
-                    .DefaultIfEmpty(resultSelector(o, default)),
+                    .Select(i => result(o, i))
+                    .DefaultIfEmpty(result(o, default)),
                 comparer)
             .SelectMany(oi => oi)
             .AsQueryable();
@@ -87,6 +77,18 @@ public static class QueryableExtensions
             resultSelector) where TInner : class where TOuter : class
     {
         return outer.LeftJoin(inner, outerKeySelector, innerKeySelector, resultSelector, default);
+    }
+
+    public static IQueryable<TResult> LeftOuterJoin<TSource, TInner, TKey, TResult>(this IRepository<TSource> source,
+        IRepository<TInner> inner,
+        Func<TSource, TKey> left,
+        Func<TInner, TKey> right,
+        Func<TSource, TInner, TResult> res) where TSource : class where TInner : class
+    {
+        return from f in source.AsQueryable()
+            join b in inner.AsQueryable() on left.Invoke(f) equals right.Invoke(b) into g
+            from result in g.DefaultIfEmpty()
+            select res.Invoke(f, result);
     }
 
     public static IQueryable<TEntity> Pagination<TEntity>(this IRepository<TEntity> source,
@@ -195,7 +197,8 @@ public static class QueryableExtensions
             .AsQueryable();
     }
 
-    public static IQueryable<T> Where<T>(this IQueryable<T> source, string propertyName, object propertyValue, out bool success) where T : class
+    public static IQueryable<T> Where<T>(this IQueryable<T> source, string propertyName, object propertyValue, out bool success)
+        where T : class
     {
         success = false;
         var mba = PropertyAccessorCache<T>.Get(propertyName);
