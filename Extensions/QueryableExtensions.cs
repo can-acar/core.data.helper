@@ -42,42 +42,21 @@ public static class QueryableExtensions
         Expression<Func<TLeftSource, TRightSource, TResult>> result) where TLeftSource : class where TRightSource : class
     {
         return source.AsQueryable()
-            .Join(inner.AsQueryable(),
-                left,
-                right,
-                result);
+            .Join(inner.AsQueryable(), left, right, result);
     }
 
 
     public static IQueryable<TResult> LeftJoin<TLeftSource, TRightSource, TQueryKey, TResult>(this IRepository<TLeftSource> source,
         IRepository<TRightSource> inner,
-        Func<TLeftSource, TQueryKey> left,
-        Func<TRightSource, TQueryKey> right,
-        Func<TLeftSource, TRightSource, TResult> result,
-        IEqualityComparer<TQueryKey> comparer) where TLeftSource : class where TRightSource : class
+        Expression<Func<TLeftSource, TQueryKey>> left,
+        Expression<Func<TRightSource, TQueryKey>> right,
+        Func<TLeftSource, TRightSource, TResult> result) where TLeftSource : class where TRightSource : class
     {
         return source.AsQueryable()
-            .AsEnumerable()
-            .GroupJoin(inner.AsQueryable(),
-                left,
-                right,
-                (o, ei) => ei
-                    .Select(i => result(o, i))
-                    .DefaultIfEmpty(result(o, default)),
-                comparer)
-            .SelectMany(oi => oi)
-            .AsQueryable();
+            .GroupJoin(inner.AsQueryable(), left, right, (pLeft, pRight) => new {pLeft, pRight})
+            .SelectMany(x => x.pRight.DefaultIfEmpty(), (x, y) => result(x.pLeft, y)).AsQueryable();
     }
 
-    public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IRepository<TOuter> outer,
-        IRepository<TInner> inner,
-        Func<TOuter, TKey> outerKeySelector,
-        Func<TInner, TKey> innerKeySelector,
-        Func<TOuter, TInner, TResult>
-            resultSelector) where TInner : class where TOuter : class
-    {
-        return outer.LeftJoin(inner, outerKeySelector, innerKeySelector, resultSelector, default);
-    }
 
     public static IQueryable<TResult> LeftOuterJoin<TSource, TInner, TKey, TResult>(this IRepository<TSource> source,
         IRepository<TInner> inner,
