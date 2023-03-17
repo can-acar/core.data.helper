@@ -9,13 +9,13 @@ public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork wh
 {
     public TContext DbContext { get; }
 
-    private IDbContextTransaction ContextTransaction;
-    private bool Disposed;
+    private IDbContextTransaction _contextTransaction;
+    private bool _disposed;
 
     public UnitOfWork(TContext context)
     {
         DbContext = context ?? throw new ArgumentNullException(nameof(context));
-        ContextTransaction = DbContext.Database.CurrentTransaction;
+        _contextTransaction = DbContext.Database.CurrentTransaction;
     }
 
     public async Task ExecuteAsync(Func<Task> action)
@@ -26,14 +26,14 @@ public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork wh
 
     public IDbContextTransaction BeginTransaction()
     {
-        ContextTransaction = DbContext.Database.BeginTransaction();
-        return ContextTransaction;
+        _contextTransaction = DbContext.Database.BeginTransaction();
+        return _contextTransaction;
     }
 
     public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
     {
-        ContextTransaction = DbContext.Database.BeginTransaction();
-        return ContextTransaction;
+        _contextTransaction = DbContext.Database.BeginTransaction();
+        return _contextTransaction;
     }
 
     public IRepository<TEntity> Repository<TEntity>() where TEntity : class
@@ -45,7 +45,7 @@ public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork wh
 
     public void Rollback()
     {
-        ContextTransaction.Rollback();
+        _contextTransaction.Rollback();
     }
 
     public int SaveChanges()
@@ -60,7 +60,7 @@ public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork wh
 
     public void Commit()
     {
-        ContextTransaction?.Commit();
+        _contextTransaction?.Commit();
     }
 
     public void Dispose()
@@ -71,10 +71,10 @@ public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork wh
 
     private void Dispose(bool disposing)
     {
-        if (!Disposed)
+        if (!_disposed)
             if (disposing)
                 DbContext.Dispose();
 
-        Disposed = true;
+        _disposed = true;
     }
 }

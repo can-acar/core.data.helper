@@ -112,7 +112,7 @@ public interface IRepository<TEntity> where TEntity : class
 
     Task<int> SaveChangesAsync();
 
-    void InsertArray(ICollection<TEntity> entities);
+    void InsertArray(IEnumerable<TEntity> entities);
 
     Task InsertArrayAsync(ICollection<TEntity> entities);
 }

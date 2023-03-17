@@ -450,7 +450,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// virtual void InsertArray(ICollection<TEntity> entities)
     /// </summary>
     /// <param name="entities"></param>
-    public virtual void InsertArray(ICollection<TEntity> entities)
+    public virtual void InsertArray(IEnumerable<TEntity> entities)
     {
         DbSet.AddRange(entities);
     }
