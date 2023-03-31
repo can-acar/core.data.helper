@@ -50,11 +50,63 @@ public static class QueryableExtensions
         IRepository<TRightSource> inner,
         Expression<Func<TLeftSource, TQueryKey>> left,
         Expression<Func<TRightSource, TQueryKey>> right,
-        Func<TLeftSource, TRightSource, TResult> result) where TLeftSource : class where TRightSource : class
+        Expression<Func<TLeftSource, TRightSource, TResult>> result) where TLeftSource : class where TRightSource : class
     {
         return source.AsQueryable()
-            .GroupJoin(inner.AsQueryable(), left, right, (pLeft, pRight) => new {pLeft, pRight})
-            .SelectMany(x => x.pRight.DefaultIfEmpty(), (x, y) => result(x.pLeft, y)).AsQueryable();
+            .GroupJoin(
+                inner.AsQueryable(),
+                left,
+                right,
+                (o, i) => new {o, i}
+            )
+            .SelectMany(
+                x => x.i.DefaultIfEmpty(),
+                (x, i) => new {x.o, i}
+            )
+            .Select(x => result.Compile().Invoke(x.o, x.i));
+    }
+
+    public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(
+        this IQueryable<TOuter> outer,
+        IRepository<TInner> inner,
+        Expression<Func<TOuter, TKey>> outerKeySelector,
+        Expression<Func<TInner, TKey>> innerKeySelector,
+        Expression<Func<TOuter, TInner, TResult>> resultSelector) where TInner : class where TOuter : class
+    {
+        return outer
+            .GroupJoin(
+                inner.AsQueryable(),
+                outerKeySelector,
+                innerKeySelector,
+                (o, i) => new {o, i}
+            )
+            .SelectMany(
+                x => x.i.DefaultIfEmpty(),
+                (x, i) => new {x.o, i}
+            )
+            .Select(x => resultSelector.Compile().Invoke(x.o, x.i));
+    }
+
+
+    public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(
+        this IQueryable<TOuter> outer,
+        IEnumerable<TInner> inner,
+        Expression<Func<TOuter, TKey>> outerKeySelector,
+        Expression<Func<TInner, TKey>> innerKeySelector,
+        Expression<Func<TOuter, TInner, TResult>> resultSelector)
+    {
+        return outer
+            .GroupJoin(
+                inner,
+                outerKeySelector,
+                innerKeySelector,
+                (o, i) => new {o, i}
+            )
+            .SelectMany(
+                x => x.i.DefaultIfEmpty(),
+                (x, i) => new {x.o, i}
+            )
+            .Select(x => resultSelector.Compile().Invoke(x.o, x.i));
     }
 
 
