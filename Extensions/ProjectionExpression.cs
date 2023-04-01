@@ -34,9 +34,9 @@ public class ProjectionExpression<TSource>
 
     private static Expression<Func<TSource, TDest>> BuildExpression<TDest>()
     {
-        var sourceProperties      = typeof(TSource).GetProperties();
+        var sourceProperties = typeof(TSource).GetProperties();
         var destinationProperties = typeof(TDest).GetProperties().Where(dest => dest.CanWrite);
-        var parameterExpression   = Expression.Parameter(typeof(TSource), "src");
+        var parameterExpression = Expression.Parameter(typeof(TSource), "src");
 
         var propertyInfos = destinationProperties.ToList();
         var bindings = propertyInfos.Select(destinationProperty => BuildBinding(parameterExpression, destinationProperty, sourceProperties))

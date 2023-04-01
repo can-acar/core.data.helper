@@ -69,10 +69,14 @@ public interface IRepository<TEntity> where TEntity : class
     Task<bool> AnyAsync(Expression<Func<TEntity, bool>> where,
         params Expression<Func<TEntity, object>>[] includeProperties);
 
-    IQueryable<TEntity> Pagination(int currentPage, int limit, out int rowsCount,
+    IQueryable<TEntity> Pagination(int currentPage,
+        int limit,
+        out int rowsCount,
         params Expression<Func<TEntity, object>>[] includeProperties);
 
-    Task<IQueryable<TEntity>> PaginationAsync(int currentPage, int limit, Func<int, int> rowsCount,
+    Task<IQueryable<TEntity>> PaginationAsync(int currentPage,
+        int limit,
+        Func<int, int> rowsCount,
         params Expression<Func<TEntity, object>>[] includeProperties);
 
     IQueryable<TEntity> AsNoTracking();
@@ -108,7 +112,7 @@ public interface IRepository<TEntity> where TEntity : class
 
     Task<int> SaveChangesAsync();
 
-    void InsertArray(ICollection<TEntity> entities);
+    void InsertArray(IEnumerable<TEntity> entities);
 
     Task InsertArrayAsync(ICollection<TEntity> entities);
 }
