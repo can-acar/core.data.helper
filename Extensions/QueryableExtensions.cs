@@ -388,6 +388,31 @@ public static class QueryableExtensions
             .AsQueryable();
     }
 
+    /// <summary>
+    /// SplitQuery() is not a built-in LINQ method.
+    /// However, it's possible you're referring to a custom extension method that's used to split large queries into smaller chunks, which can help improve performance and avoid running into SQL query limitations.
+    /// 
+    public static IEnumerable<List<T>> SplitQuery<T>(this IQueryable<T> query, int chunkSize)
+    {
+        if (chunkSize <= 0)
+        {
+            throw new ArgumentException("Chunk size must be greater than 0.", nameof(chunkSize));
+        }
+
+        var skip = 0;
+        List<T> chunk;
+        do
+        {
+            chunk = query.Skip(skip).Take(chunkSize).ToList();
+            skip += chunkSize;
+
+            if (chunk.Count > 0)
+            {
+                yield return chunk;
+            }
+        } while (chunk.Count == chunkSize);
+    }
+
     // public void TranslateInto(string[] companies) 
     // { 
     //     IQueryable<String>  queryableData = companies.AsQueryable(); 
