@@ -49,6 +49,11 @@ public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork wh
         return customRepo;
     }
 
+    public Task<IQueryable<TEntity>> SqlQueryAsync<TEntity>(string query, params object[] parameters)
+    {
+        return Task.FromResult(DbContext.Database.SqlQueryRaw<TEntity>(query, parameters));
+    }
+
     public void Rollback()
     {
         _contextTransaction.Rollback();

@@ -19,6 +19,9 @@ public interface IUnitOfWork : IDisposable
 
     Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel);
 
+    Task<IQueryable<TEntity>> SqlQueryAsync<TEntity>(string query, params object[] parameters);
+
+
     IRepository<TEntity> Repository<TEntity>() where TEntity : class;
 
     void Rollback();

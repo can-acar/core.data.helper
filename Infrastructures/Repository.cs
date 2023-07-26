@@ -12,6 +12,8 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     private DbContext Context { get; }
     public DbSet<TEntity> Entity { get; set; }
 
+    private EntityEntry<TEntity> _entity { get; set; }
+
     protected Repository(DbContext context) //: base(context)
     {
         Context = context;
@@ -461,11 +463,11 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     }
 
     /// <summary>
-    /// virtual Task InsertArrayAsync(ICollection<TEntity> entities)
+    /// virtual Task InsertArrayAsync(IEnumerable<TEntity> entities)
     /// </summary>
     /// <param name="entities"></param>
     /// <returns></returns>
-    public virtual Task InsertArrayAsync(ICollection<TEntity> entities)
+    public virtual Task InsertArrayAsync(IEnumerable<TEntity> entities)
     {
         return Task.Run(() => _dbSet.AddRange(entities));
     }
@@ -475,9 +477,9 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public virtual Task<EntityEntry<TEntity>> InsertAsync(TEntity entity)
+    public virtual ValueTask<EntityEntry<TEntity>> InsertAsync(TEntity entity)
     {
-        return Task.FromResult(_dbSet.Add(entity));
+        return _dbSet.AddAsync(entity);
     }
 
     /// <summary>

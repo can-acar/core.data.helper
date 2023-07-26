@@ -91,7 +91,7 @@ public interface IRepository<TEntity> where TEntity : class
 
     EntityEntry<TEntity> Insert(TEntity entity);
 
-    Task<EntityEntry<TEntity>> InsertAsync(TEntity entity);
+    ValueTask<EntityEntry<TEntity>> InsertAsync(TEntity entity);
 
     void Update(TEntity entity);
 
@@ -115,5 +115,5 @@ public interface IRepository<TEntity> where TEntity : class
 
     void InsertArray(IEnumerable<TEntity> entities);
 
-    Task InsertArrayAsync(ICollection<TEntity> entities);
+    Task InsertArrayAsync(IEnumerable<TEntity> entities);
 }
