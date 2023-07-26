@@ -24,7 +24,8 @@ public static class QueryableExtensions
         params Expression<Func<TEntity, TProperty>>[] navigationPropertyPath)
         where TEntity : class
     {
-        return navigationPropertyPath.Aggregate<Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(source.Entity,
+        return navigationPropertyPath.Aggregate<Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(
+            source.Entity,
             (entities, expression) => entities.Include(expression));
     }
 
@@ -35,26 +36,82 @@ public static class QueryableExtensions
         return source.Entity.Include(navigationPropertyPath);
     }
 
-    public static IQueryable<TResult> InnerJoin<TLeftSource, TRightSource, TQueryKey, TResult>(this IRepository<TLeftSource> source,
+    public static IQueryable<TResult> InnerJoin<TLeftSource, TRightSource, TQueryKey, TResult>(
+        this IRepository<TLeftSource> source,
         IRepository<TRightSource> inner,
         Expression<Func<TLeftSource, TQueryKey>> left,
         Expression<Func<TRightSource, TQueryKey>> right,
-        Expression<Func<TLeftSource, TRightSource, TResult>> result) where TLeftSource : class where TRightSource : class
+        Expression<Func<TLeftSource, TRightSource, TResult>> result)
+        where TLeftSource : class where TRightSource : class
     {
         return source.AsQueryable()
             .Join(inner.AsQueryable(), left, right, result);
     }
 
 
-    public static IQueryable<TResult> LeftJoin<TLeftSource, TRightSource, TQueryKey, TResult>(this IRepository<TLeftSource> source,
+    public static IQueryable<TResult> LeftJoin<TLeftSource, TRightSource, TQueryKey, TResult>(
+        this IRepository<TLeftSource> source,
         IRepository<TRightSource> inner,
         Expression<Func<TLeftSource, TQueryKey>> left,
         Expression<Func<TRightSource, TQueryKey>> right,
-        Func<TLeftSource, TRightSource, TResult> result) where TLeftSource : class where TRightSource : class
+        Expression<Func<TLeftSource, TRightSource, TResult>> result)
+        where TLeftSource : class where TRightSource : class
     {
         return source.AsQueryable()
-            .GroupJoin(inner.AsQueryable(), left, right, (pLeft, pRight) => new {pLeft, pRight})
-            .SelectMany(x => x.pRight.DefaultIfEmpty(), (x, y) => result(x.pLeft, y)).AsQueryable();
+            .GroupJoin(
+                inner.AsQueryable(),
+                left,
+                right,
+                (o, i) => new {o, i}
+            )
+            .SelectMany(
+                x => x.i.DefaultIfEmpty(),
+                (x, i) => new {x.o, i}
+            )
+            .Select(x => result.Compile().Invoke(x.o, x.i));
+    }
+
+    public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(
+        this IQueryable<TOuter> outer,
+        IRepository<TInner> inner,
+        Expression<Func<TOuter, TKey>> outerKeySelector,
+        Expression<Func<TInner, TKey>> innerKeySelector,
+        Expression<Func<TOuter, TInner, TResult>> resultSelector) where TInner : class where TOuter : class
+    {
+        return outer
+            .GroupJoin(
+                inner.AsQueryable(),
+                outerKeySelector,
+                innerKeySelector,
+                (o, i) => new {o, i}
+            )
+            .SelectMany(
+                x => x.i.DefaultIfEmpty(),
+                (x, i) => new {x.o, i}
+            )
+            .Select(x => resultSelector.Compile().Invoke(x.o, x.i));
+    }
+
+
+    public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(
+        this IQueryable<TOuter> outer,
+        IEnumerable<TInner> inner,
+        Expression<Func<TOuter, TKey>> outerKeySelector,
+        Expression<Func<TInner, TKey>> innerKeySelector,
+        Expression<Func<TOuter, TInner, TResult>> resultSelector)
+    {
+        return outer
+            .GroupJoin(
+                inner,
+                outerKeySelector,
+                innerKeySelector,
+                (o, i) => new {o, i}
+            )
+            .SelectMany(
+                x => x.i.DefaultIfEmpty(),
+                (x, i) => new {x.o, i}
+            )
+            .Select(x => resultSelector.Compile().Invoke(x.o, x.i));
     }
 
 
@@ -91,6 +148,44 @@ public static class QueryableExtensions
             .Skip((currentPage - 1) * limit)
             .Take(limit)
             .ToArrayAsync();
+    }
+
+    public static async Task<HashSet<TEntity>> ToHashSetAsync<TEntity>(this IQueryable<TEntity> source,
+        CancellationToken cancellationToken = default)
+    {
+        var asyncEnumerator = source.AsAsyncEnumerable().GetAsyncEnumerator(cancellationToken);
+        var result = new HashSet<TEntity>();
+
+        try
+        {
+            while (true)
+            {
+                var hasNext = await asyncEnumerator.MoveNextAsync();
+
+                if (!hasNext) break;
+
+                result.Add(asyncEnumerator.Current);
+            }
+        }
+        finally
+        {
+            await asyncEnumerator.DisposeAsync();
+        }
+
+        asyncEnumerator = null;
+
+        return result;
+    }
+
+
+    public static async Task<HashSet<TEntity>> ToHashSetPaginationAsync<TEntity>(this IQueryable<TEntity> source,
+        int currentPage,
+        int limit) where TEntity : class
+    {
+        return await source
+            .Skip((currentPage - 1) * limit)
+            .Take(limit)
+            .ToHashSetAsync();
     }
 
     public static Task<IQueryable<TSource>> WhereAsync<TSource>(this IQueryable<TSource> source,
@@ -149,7 +244,8 @@ public static class QueryableExtensions
         }
     }
 
-    public static IQueryable<T> Filter<T>(this IQueryable<T> source, string propertyName, object propertyValue) where T : class
+    public static IQueryable<T> Filter<T>(this IQueryable<T> source, string propertyName, object propertyValue)
+        where T : class
     {
         var param = Expression.Parameter(typeof(T), typeof(T).Name.ToLower());
         var property = Expression.Property(param, propertyName);
@@ -176,7 +272,8 @@ public static class QueryableExtensions
             .AsQueryable();
     }
 
-    public static IQueryable<T> Where<T>(this IQueryable<T> source, string propertyName, object propertyValue, out bool success)
+    public static IQueryable<T> Where<T>(this IQueryable<T> source, string propertyName, object propertyValue,
+        out bool success)
         where T : class
     {
         success = false;
@@ -280,7 +377,8 @@ public static class QueryableExtensions
             : "OrderByDescending";
 
         var orderBy = orders[0]["orderBy"];
-        var orderProperty = entityType.GetProperty(orderBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+        var orderProperty = entityType.GetProperty(orderBy,
+            BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
         var propertyAccess = Expression.MakeMemberAccess(entityParameter, orderProperty!);
         var orderByExpression = Expression.Lambda(propertyAccess, entityParameter);
         var resultExpression = Expression.Call(typeof(Queryable),
@@ -300,7 +398,8 @@ public static class QueryableExtensions
                 ? "ThenBy"
                 : "ThenByDescending";
 
-            orderProperty = entityType.GetProperty(orderBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            orderProperty = entityType.GetProperty(orderBy,
+                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
             propertyAccess = Expression.MakeMemberAccess(entityParameter, orderProperty!);
 
@@ -334,6 +433,31 @@ public static class QueryableExtensions
 
         return source.Provider.CreateQuery<T>(methodCallExpression)
             .AsQueryable();
+    }
+
+    /// <summary>
+    /// SplitQuery() is not a built-in LINQ method.
+    /// However, it's possible you're referring to a custom extension method that's used to split large queries into smaller chunks, which can help improve performance and avoid running into SQL query limitations.
+    /// 
+    public static IEnumerable<List<T>> SplitQuery<T>(this IQueryable<T> query, int chunkSize)
+    {
+        if (chunkSize <= 0)
+        {
+            throw new ArgumentException("Chunk size must be greater than 0.", nameof(chunkSize));
+        }
+
+        var skip = 0;
+        List<T> chunk;
+        do
+        {
+            chunk = query.Skip(skip).Take(chunkSize).ToList();
+            skip += chunkSize;
+
+            if (chunk.Count > 0)
+            {
+                yield return chunk;
+            }
+        } while (chunk.Count == chunkSize);
     }
 
     // public void TranslateInto(string[] companies) 
