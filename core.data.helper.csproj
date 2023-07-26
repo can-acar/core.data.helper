@@ -2,6 +2,16 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>disable</Nullable>
+        <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+        <Version>3.2.5</Version>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <LangVersion>default</LangVersion>
+        <Description>Can Acar</Description>
+        <Copyright>Can Acar</Copyright>
+        <PackageProjectUrl>https://github.com/can-acar</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/can-acar</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/can-acar</RepositoryUrl>
+        <IsPackable>false</IsPackable>
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>default</LangVersion>
         <OutputType>Library</OutputType>
@@ -9,6 +19,7 @@
         <RootNamespace>CoreEntityHelper</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
+
         <PackageReference Include="Autofac" Version="7.0.1" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.9" />
