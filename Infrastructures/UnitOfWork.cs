@@ -36,6 +36,12 @@ public sealed class UnitOfWork<TContext> : IUnitOfWork<TContext>, IUnitOfWork wh
         return _contextTransaction;
     }
 
+    public Task<IDbContextTransaction> BeginTransactionAsync() => DbContext.Database.BeginTransactionAsync();
+
+
+    public Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel) =>
+        DbContext.Database.BeginTransactionAsync(isolationLevel);
+
     public IRepository<TEntity> Repository<TEntity>() where TEntity : class
     {
         var customRepo = DbContext.GetService<IRepository<TEntity>>(); //.Resolve<IRepository<TEntity>>();

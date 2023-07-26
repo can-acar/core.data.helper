@@ -24,7 +24,8 @@ public static class QueryableExtensions
         params Expression<Func<TEntity, TProperty>>[] navigationPropertyPath)
         where TEntity : class
     {
-        return navigationPropertyPath.Aggregate<Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(source.Entity,
+        return navigationPropertyPath.Aggregate<Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(
+            source.Entity,
             (entities, expression) => entities.Include(expression));
     }
 
@@ -35,22 +36,26 @@ public static class QueryableExtensions
         return source.Entity.Include(navigationPropertyPath);
     }
 
-    public static IQueryable<TResult> InnerJoin<TLeftSource, TRightSource, TQueryKey, TResult>(this IRepository<TLeftSource> source,
+    public static IQueryable<TResult> InnerJoin<TLeftSource, TRightSource, TQueryKey, TResult>(
+        this IRepository<TLeftSource> source,
         IRepository<TRightSource> inner,
         Expression<Func<TLeftSource, TQueryKey>> left,
         Expression<Func<TRightSource, TQueryKey>> right,
-        Expression<Func<TLeftSource, TRightSource, TResult>> result) where TLeftSource : class where TRightSource : class
+        Expression<Func<TLeftSource, TRightSource, TResult>> result)
+        where TLeftSource : class where TRightSource : class
     {
         return source.AsQueryable()
             .Join(inner.AsQueryable(), left, right, result);
     }
 
 
-    public static IQueryable<TResult> LeftJoin<TLeftSource, TRightSource, TQueryKey, TResult>(this IRepository<TLeftSource> source,
+    public static IQueryable<TResult> LeftJoin<TLeftSource, TRightSource, TQueryKey, TResult>(
+        this IRepository<TLeftSource> source,
         IRepository<TRightSource> inner,
         Expression<Func<TLeftSource, TQueryKey>> left,
         Expression<Func<TRightSource, TQueryKey>> right,
-        Expression<Func<TLeftSource, TRightSource, TResult>> result) where TLeftSource : class where TRightSource : class
+        Expression<Func<TLeftSource, TRightSource, TResult>> result)
+        where TLeftSource : class where TRightSource : class
     {
         return source.AsQueryable()
             .GroupJoin(
@@ -145,6 +150,44 @@ public static class QueryableExtensions
             .ToArrayAsync();
     }
 
+    public static async Task<HashSet<TEntity>> ToHashSetAsync<TEntity>(this IQueryable<TEntity> source,
+        CancellationToken cancellationToken = default)
+    {
+        var asyncEnumerator = source.AsAsyncEnumerable().GetAsyncEnumerator(cancellationToken);
+        var result = new HashSet<TEntity>();
+
+        try
+        {
+            while (true)
+            {
+                var hasNext = await asyncEnumerator.MoveNextAsync();
+
+                if (!hasNext) break;
+
+                result.Add(asyncEnumerator.Current);
+            }
+        }
+        finally
+        {
+            await asyncEnumerator.DisposeAsync();
+        }
+
+        asyncEnumerator = null;
+
+        return result;
+    }
+
+
+    public static async Task<HashSet<TEntity>> ToHashSetPaginationAsync<TEntity>(this IQueryable<TEntity> source,
+        int currentPage,
+        int limit) where TEntity : class
+    {
+        return await source
+            .Skip((currentPage - 1) * limit)
+            .Take(limit)
+            .ToHashSetAsync();
+    }
+
     public static Task<IQueryable<TSource>> WhereAsync<TSource>(this IQueryable<TSource> source,
         Expression<Func<TSource, bool>> predicate) where TSource : class
     {
@@ -201,7 +244,8 @@ public static class QueryableExtensions
         }
     }
 
-    public static IQueryable<T> Filter<T>(this IQueryable<T> source, string propertyName, object propertyValue) where T : class
+    public static IQueryable<T> Filter<T>(this IQueryable<T> source, string propertyName, object propertyValue)
+        where T : class
     {
         var param = Expression.Parameter(typeof(T), typeof(T).Name.ToLower());
         var property = Expression.Property(param, propertyName);
@@ -228,7 +272,8 @@ public static class QueryableExtensions
             .AsQueryable();
     }
 
-    public static IQueryable<T> Where<T>(this IQueryable<T> source, string propertyName, object propertyValue, out bool success)
+    public static IQueryable<T> Where<T>(this IQueryable<T> source, string propertyName, object propertyValue,
+        out bool success)
         where T : class
     {
         success = false;
@@ -332,7 +377,8 @@ public static class QueryableExtensions
             : "OrderByDescending";
 
         var orderBy = orders[0]["orderBy"];
-        var orderProperty = entityType.GetProperty(orderBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+        var orderProperty = entityType.GetProperty(orderBy,
+            BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
         var propertyAccess = Expression.MakeMemberAccess(entityParameter, orderProperty!);
         var orderByExpression = Expression.Lambda(propertyAccess, entityParameter);
         var resultExpression = Expression.Call(typeof(Queryable),
@@ -352,7 +398,8 @@ public static class QueryableExtensions
                 ? "ThenBy"
                 : "ThenByDescending";
 
-            orderProperty = entityType.GetProperty(orderBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            orderProperty = entityType.GetProperty(orderBy,
+                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
             propertyAccess = Expression.MakeMemberAccess(entityParameter, orderProperty!);
 

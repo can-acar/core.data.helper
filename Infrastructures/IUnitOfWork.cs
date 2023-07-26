@@ -15,6 +15,10 @@ public interface IUnitOfWork : IDisposable
 
     IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel);
 
+    Task<IDbContextTransaction> BeginTransactionAsync();
+
+    Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel);
+
     IRepository<TEntity> Repository<TEntity>() where TEntity : class;
 
     void Rollback();
