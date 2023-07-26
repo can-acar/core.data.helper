@@ -8,20 +8,20 @@ namespace CoreEntityHelper.Infrastructures;
 
 public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
 {
-    private readonly DbSet<TEntity> _dbSet;
+    private readonly DbSet<TEntity> DbSet;
     private DbContext Context { get; }
     public DbSet<TEntity> Entity { get; set; }
 
     protected Repository(DbContext context) //: base(context)
     {
         Context = context;
-        _dbSet = context.Set<TEntity>();
+        DbSet = context.Set<TEntity>();
         Entity = context.Set<TEntity>();
     }
 
     protected virtual IEnumerator<TEntity> GetEnumerator()
     {
-        return _dbSet.AsEnumerable()
+        return DbSet.AsEnumerable()
             .GetEnumerator();
     }
 
@@ -31,7 +31,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <returns></returns>
     private IQueryable<TEntity> PerformInclusions(params Expression<Func<TEntity, object>>[] includeProperties)
     {
-        return includeProperties.Aggregate<Expression<Func<TEntity, object>>, IQueryable<TEntity>>(_dbSet,
+        return includeProperties.Aggregate<Expression<Func<TEntity, object>>, IQueryable<TEntity>>(DbSet,
             (current, includeProperty) => current.Include(includeProperty));
     }
 
@@ -42,7 +42,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// </returns>
     public virtual IQueryable<TEntity> AsQueryable()
     {
-        return _dbSet.AsQueryable();
+        return DbSet.AsQueryable();
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <returns></returns>
     public virtual Task<IQueryable<TEntity>> AsQueryableAsync()
     {
-        return Task.FromResult(_dbSet.AsQueryable());
+        return Task.FromResult(DbSet.AsQueryable());
     }
 
     /// <summary>
@@ -67,8 +67,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// </summary>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual Task<IQueryable<TEntity>> AsQueryableAsync(
-        params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual Task<IQueryable<TEntity>> AsQueryableAsync(params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return Task.Run(() => PerformInclusions(includeProperties)
             .AsQueryable());
@@ -79,8 +78,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual int Count(Expression<Func<TEntity, bool>> where,
-        params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual int Count(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .Count(where);
@@ -101,8 +99,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual Task<int> CountAsync(Expression<Func<TEntity, bool>> where,
-        params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual Task<int> CountAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .CountAsync(where);
@@ -157,8 +154,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual TEntity First(Expression<Func<TEntity, bool>> where,
-        params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual TEntity First(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .First(where);
@@ -234,8 +230,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual TEntity Single(Expression<Func<TEntity, bool>> where,
-        params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual TEntity Single(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .Single(where);
@@ -306,8 +301,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual bool Any(Expression<Func<TEntity, bool>> where,
-        params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual bool Any(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .Any(where);
@@ -318,8 +312,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="where"></param>
     /// <param name="includeProperties"></param>
     /// <returns></returns>
-    public virtual Task<bool> AnyAsync(Expression<Func<TEntity, bool>> where,
-        params Expression<Func<TEntity, object>>[] includeProperties)
+    public virtual Task<bool> AnyAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties)
     {
         return PerformInclusions(includeProperties)
             .AnyAsync(where);
@@ -379,7 +372,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <returns></returns>
     public virtual IQueryable<TEntity> AsNoTracking()
     {
-        return _dbSet.AsNoTracking();
+        return DbSet.AsNoTracking();
     }
 
     /// <summary>
@@ -393,9 +386,9 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
         if (Context.Entry(entity)
                 .State ==
             EntityState.Detached)
-            _dbSet.Attach(entity);
+            DbSet.Attach(entity);
 
-        _dbSet.Remove(entity);
+        DbSet.Remove(entity);
     }
 
     /// <summary>
@@ -404,10 +397,10 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="match"></param>
     public virtual void Delete(Expression<Func<TEntity, bool>> match)
     {
-        var ıtems = _dbSet.Where(match)
+        var ıtems = DbSet.Where(match)
             .AsQueryable();
 
-        foreach (var ıtem in ıtems) _dbSet.Remove(ıtem);
+        foreach (var ıtem in ıtems) DbSet.Remove(ıtem);
     }
 
     /// <summary>
@@ -418,14 +411,14 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     public virtual Task DeleteAsync(Expression<Func<TEntity, bool>> where)
     {
         //DbSet = DbContext.Set<TEntity>();
-        var ıtems = _dbSet.Where(where)
+        var ıtems = DbSet.Where(where)
             .AsQueryable();
 
         foreach (var ıtem in ıtems)
 
             // if (Context.Entry(Item).State == EntityState.Detached)
             //     DbSet.Attach(Item);
-            _dbSet.Remove(ıtem);
+            DbSet.Remove(ıtem);
 
         return Task.FromResult(ıtems);
     }
@@ -441,23 +434,25 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
         // if (Context.Entry(entity).State == EntityState.Detached)
         //     DbSet.Attach(entity);
 
-        return Task.FromResult(_dbSet.Remove(entity));
+        return Task.FromResult(DbSet.Remove(entity));
     }
 
     /// <summary>
-    /// 
+    /// virtual void Insert(TEntity entity)
     /// </summary>
     /// <param name="entity"></param>
-    /// <returns></returns>
-    public virtual EntityEntry<TEntity> Insert(TEntity entity)
+    public virtual void Insert(TEntity entity)
     {
-        return _dbSet.Add(entity);
+        DbSet.Add(entity);
     }
 
-
+    /// <summary>
+    /// virtual void InsertArray(ICollection<TEntity> entities)
+    /// </summary>
+    /// <param name="entities"></param>
     public virtual void InsertArray(IEnumerable<TEntity> entities)
     {
-        _dbSet.AddRange(entities);
+        DbSet.AddRange(entities);
     }
 
     /// <summary>
@@ -467,7 +462,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <returns></returns>
     public virtual Task InsertArrayAsync(ICollection<TEntity> entities)
     {
-        return Task.Run(() => _dbSet.AddRange(entities));
+        return Task.Run(() => DbSet.AddRange(entities));
     }
 
     /// <summary>
@@ -475,9 +470,9 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public virtual Task<EntityEntry<TEntity>> InsertAsync(TEntity entity)
+    public virtual Task InsertAsync(TEntity entity)
     {
-        return Task.FromResult(_dbSet.Add(entity));
+        return Task.FromResult(DbSet.Add(entity));
     }
 
     /// <summary>
@@ -499,7 +494,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
         Context.Entry(entity)
             .State = EntityState.Modified;
 
-        return Task.FromResult(_dbSet.Update(entity));
+        return Task.FromResult(DbSet.Update(entity));
     }
 
     /// <summary>
@@ -512,14 +507,14 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     {
         if (entity == null) return null;
 
-        var existing = _dbSet.SingleOrDefault(match);
+        var existing = DbSet.SingleOrDefault(match);
 
         if (existing == null) return new TEntity();
 
         Context.Entry(entity)
             .State = EntityState.Modified;
 
-        _dbSet.Update(entity);
+        DbSet.Update(entity);
 
         return existing;
     }
@@ -568,7 +563,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// </returns>
     public virtual IQueryable<TEntity> SqlQuery(string query, params object[] parameters)
     {
-        return _dbSet.FromSqlRaw(query, parameters);
+        return DbSet.FromSqlRaw(query, parameters);
     }
 
     /// <summary>
@@ -581,7 +576,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// </returns>
     public virtual Task<IQueryable<TEntity>> SqlQueryAsync(string query, params object[] parameters)
     {
-        return Task.FromResult(_dbSet.FromSqlRaw(query, parameters));
+        return Task.FromResult(DbSet.FromSqlRaw(query, parameters));
     }
 
     /// <summary>
@@ -615,8 +610,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     /// <param name="parameters"></param>
     /// <param name="entity"></param>
     /// <returns TEntity="&gt;">Task<List<TEntity>> </returns>
-    public virtual async Task<List<TEntity>> SqlQuery(Func<DbDataReader, TEntity> entity, string sqlQuery,
-        params object[] parameters)
+    public virtual async Task<List<TEntity>> SqlQuery(Func<DbDataReader, TEntity> entity, string sqlQuery, params object[] parameters)
     {
         await using var command = Context.Database.GetDbConnection()
             .CreateCommand();
@@ -654,12 +648,11 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
         string includeProperties = "")
     {
-        IQueryable<TEntity> query = _dbSet;
+        IQueryable<TEntity> query = DbSet;
 
         if (filter != null) query = query.Where(filter);
 
-        foreach (var includeProperty in
-                 includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
+        foreach (var includeProperty in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
             query = query.Include(includeProperty);
 
         if (orderBy != null)

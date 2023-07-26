@@ -14,8 +14,7 @@ public interface IRepository<TEntity> where TEntity : class
     int Count(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties);
     int Count(params Expression<Func<TEntity, object>>[] includeProperties);
 
-    Task<int> CountAsync(Expression<Func<TEntity, bool>> where,
-        params Expression<Func<TEntity, object>>[] includeProperties);
+    Task<int> CountAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties);
 
     IQueryable<TEntity> AsQueryable();
 
@@ -89,9 +88,9 @@ public interface IRepository<TEntity> where TEntity : class
 
     Task DeleteAsync(TEntity entity);
 
-    EntityEntry<TEntity> Insert(TEntity entity);
+    void Insert(TEntity entity);
 
-    Task<EntityEntry<TEntity>> InsertAsync(TEntity entity);
+    Task InsertAsync(TEntity entity);
 
     void Update(TEntity entity);
 
