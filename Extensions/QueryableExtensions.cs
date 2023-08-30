@@ -3,6 +3,7 @@ using System.Reflection;
 using CoreEntityHelper.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using System.Linq;
 
 namespace CoreEntityHelper.Extensions;
 
@@ -247,33 +248,144 @@ public static class QueryableExtensions
     public static IQueryable<T> Filter<T>(this IQueryable<T> source, string propertyName, object propertyValue)
         where T : class
     {
-        var param = Expression.Parameter(typeof(T), typeof(T).Name.ToLower());
-        var property = Expression.Property(param, propertyName);
+        var param = Expression.Parameter(typeof(T), typeof(T).Name);
+        var property = Expression.Property(param, propertyName.FirstUpper());
         var searchValue = Convert.ChangeType(propertyValue, property.Type);
 
         Expression matchExpression = property;
+        MethodCallExpression methodCallExpression = null;
 
-        if (matchExpression.Type != typeof(string))
+        if (matchExpression.Type == typeof(bool))
         {
+            // propertyValue  change to bit
+            searchValue = (string) propertyValue == "true" ? true : false; //Convert.ChangeType(1, typeof(byte)) : Convert.ChangeType(0, typeof(byte));
+
+            matchExpression = Expression.Equal(property, Expression.Constant(searchValue));
+
+            methodCallExpression = Expression.Call(
+                typeof(Queryable),
+                "Where",
+                new Type[] {source.ElementType},
+                source.Expression,
+                Expression.Lambda(matchExpression, param)
+            );
+
+            return source.Where(Expression.Lambda<Func<T, bool>>(matchExpression, param)).AsQueryable();
+
+            //var result = source.Provider.CreateQuery<T>(whereCall);
+
+
+            // return source.Where(lambda).AsQueryable();
+        }
+        else
+        {
+            var pattern = Expression.Constant($"%{searchValue}%");
             matchExpression = Expression.Convert(matchExpression, typeof(object));
             matchExpression = Expression.Convert(matchExpression, typeof(string));
+            var likeMethod = typeof(DbFunctionsExtensions).GetMethod("Like", new[] {typeof(DbFunctions), property.Type, property.Type});
+
+            methodCallExpression = Expression.Call(null,
+                likeMethod,
+                Expression.Constant(EF.Functions),
+                matchExpression,
+                pattern);
         }
 
-        var pattern = Expression.Constant($"%{searchValue}%");
 
-        var expr = Expression.Call(typeof(DbFunctionsExtensions),
-            "Like",
-            Type.EmptyTypes,
-            Expression.Constant(EF.Functions),
-            matchExpression,
-            pattern);
-
-        return source.Where(Expression.Lambda<Func<T, bool>>(expr, param))
-            .AsQueryable();
+        return source.Where(Expression.Lambda<Func<T, bool>>(methodCallExpression, param)).AsQueryable();
     }
 
-    public static IQueryable<T> Where<T>(this IQueryable<T> source, string propertyName, object propertyValue,
-        out bool success)
+    // public static IQueryable<TResult> SelectRecursive<TSource, TResult>(
+    //     this IQueryable<TSource> source,
+    //     Expression<Func<TSource, TResult>> template,
+    //     Expression<Func<TResult, IEnumerable<TResult>>> recursivePath)
+    // {
+    //     var result = source.Select(template);
+    //
+    //     var paramTemplate = template.Parameters[0];
+    //     var paramRecursive = recursivePath.Parameters[0];
+    //
+    //     var paramRecursiveLambda = Expression.Lambda<Func<TSource, IEnumerable<TResult>>>(Expression.Invoke(recursivePath, paramTemplate), paramTemplate);
+    //
+    //     var recursiveResult = result
+    //         .SelectMany<TSource,TResult>(paramRecursiveLambda.Compile())
+    //         .SelectRecursive(template, recursivePath);
+    //
+    //     //.SelectMany(paramRecursiveLambda.Compile()).SelectRecursive(template, recursivePath);
+    //
+    //     return result.Concat(recursiveResult);
+    // }
+
+    // public static IQueryable<TResult> SelectRecursive<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> template, Expression<Func<TResult,
+    //     IEnumerable<TResult>>> recursivePath)
+    // {
+    //     var result = source.Select(template);
+    //     var resultExpression = (MemberInitExpression) template.Body;
+    //     var recursiveProperty = (MemberExpression) recursivePath.Body;
+    //     var recursiveBinding = resultExpression.Bindings
+    //         .OfType<MemberAssignment>()
+    //         .Single(b => b.Member == recursiveProperty.Member);
+    //     var newBindings = resultExpression.Bindings
+    //         .Where(b => b != recursiveBinding)
+    //         .Append(Expression.Bind(
+    //             recursiveBinding.Member,
+    //             Expression.Call(
+    //                 typeof(Enumerable),
+    //                 nameof(Enumerable.SelectMany),
+    //                 new[] {typeof(TResult), typeof(TResult)}, // Changed from {typeof(TSource), typeof(TResult)}
+    //                 recursiveBinding.Expression, // Changed from recursiveBinding.Expression
+    //                 Expression.Lambda(
+    //                     Expression.Invoke(
+    //                         template,
+    //                         Expression.Parameter(typeof(TSource), "x")),
+    //                     Expression.Parameter(typeof(TSource), "x")))));
+    //     var newTemplate = Expression.Lambda<Func<TSource, TResult>>(Expression.MemberInit(resultExpression.NewExpression, newBindings), template.Parameters);
+    //
+    //     return result.Concat(result.AsEnumerable().SelectMany(recursivePath.Compile()).SelectMany(x =>
+    //     {
+    //         var recursiveResult = SelectRecursive(new[] {x}, template, recursivePath).AsQueryable();
+    //         return recursiveResult;
+    //     }));
+    //
+    //     // return result.Concat(result.SelectMany(recursivePath).SelectMany(x =>
+    //     // {
+    //     //     var recursiveResult = SelectRecursive(x, newTemplate, recursivePath);
+    //     //     return recursiveResult;
+    //     // }));
+    // }
+
+
+    // public static IQueryable<TResult> SelectRecursive<TSource, TResult>(this IQueryable<TSource> source,
+    //     Expression<Func<TSource, TResult>> template,
+    //     Expression<Func<TResult, IEnumerable<TResult>>> recursivePath)
+    // {
+    //     var result = source.Select(template);
+    //     var resultExpression = (MemberInitExpression) template.Body;
+    //     var recursiveProperty = (MemberExpression) recursivePath.Body;
+    //     var recursiveBinding = resultExpression.Bindings
+    //         .OfType<MemberAssignment>()
+    //         .Single(b => b.Member == recursiveProperty.Member);
+    //     var newBindings = resultExpression.Bindings
+    //         .Where(b => b != recursiveBinding)
+    //         .Append(Expression.Bind(
+    //             recursiveBinding.Member,
+    //             Expression.Call(
+    //                 typeof(Enumerable),
+    //                 nameof(Enumerable.SelectMany),
+    //                 new[] {typeof(TSource), typeof(TResult)},
+    //                 Expression.Property(recursiveBinding.Expression, nameof(IEnumerable<TSource>.AsQueryable)),
+    //                 Expression.Lambda(
+    //                     Expression.Invoke(
+    //                         template,
+    //                         Expression.Parameter(typeof(TSource), "x")),
+    //                     Expression.Parameter(typeof(TSource), "x")))));
+    //     var newTemplate = Expression.Lambda<Func<TSource, TResult>>(
+    //         Expression.MemberInit(resultExpression.NewExpression, newBindings),
+    //         template.Parameters);
+    //     return result.Concat(result.SelectMany(recursivePath).SelectMany(x => x.AsQueryable().SelectRecursive(newTemplate, recursivePath)));
+    // }
+
+    public static IQueryable<T> Where<T>(this IQueryable<T> source, string propertyName, object propertyValue, out bool success)
         where T : class
     {
         success = false;
@@ -376,22 +488,18 @@ public static class QueryableExtensions
             ? "OrderBy"
             : "OrderByDescending";
 
-        var orderBy = orders[0]["orderBy"];
-        var orderProperty = entityType.GetProperty(orderBy,
-            BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+        var orderBy = orders[0]["orderBy"].FirstUpper();
+        var orderProperty = entityType.GetProperty(orderBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
         var propertyAccess = Expression.MakeMemberAccess(entityParameter, orderProperty!);
         var orderByExpression = Expression.Lambda(propertyAccess, entityParameter);
-        var resultExpression = Expression.Call(typeof(Queryable),
-            methodName,
-            new[] {entityType, orderProperty.PropertyType},
-            source.Expression,
+        var resultExpression = Expression.Call(typeof(Queryable), methodName, new[] {entityType, orderProperty.PropertyType}, source.Expression,
             Expression.Quote(orderByExpression));
 
         var items = orders.TakeLast(orders.Count - 1);
 
         foreach (var order in items)
         {
-            orderBy = order["orderBy"];
+            orderBy = order["orderBy"].FirstUpper();
             orderType = order["orderType"];
 
             methodName = orderType == "asc"

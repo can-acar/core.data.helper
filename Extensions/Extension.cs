@@ -52,4 +52,11 @@ public static class Extension
     {
         foreach (var element in source) action(element);
     }
+
+    public static string FirstUpper(this string str)
+    {
+        if (!string.IsNullOrEmpty(str) && str!.Length > 1) return char.ToUpperInvariant(str[0]) + str.Substring(1);
+
+        return str;
+    }
 }
