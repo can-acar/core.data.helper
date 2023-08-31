@@ -3,7 +3,6 @@ using System.Reflection;
 using CoreEntityHelper.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using System.Linq;
 
 namespace CoreEntityHelper.Extensions;
 
